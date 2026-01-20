@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, dbPool } from "@/lib/db";
 import { purchases, purchaseLineItems, suppliers, areas, rooms, attachments } from "@/lib/db/schema";
 import { neonAuth } from "@/lib/auth/server";
 import { eq, and } from "drizzle-orm";
@@ -116,59 +116,67 @@ export async function PUT(
       0
     );
 
-    // Update purchase
-    const [purchase] = await db
-      .update(purchases)
-      .set({
-        date: new Date(data.date),
-        supplierId: data.supplierId,
-        purchaseType: data.purchaseType,
-        roomId: data.roomId,
-        areaId: data.areaId,
-        totalAmount: totalAmount.toString(),
-        currency: data.currency,
-        paymentStatus: data.paymentStatus,
-        paymentDueDate: data.paymentDueDate ? new Date(data.paymentDueDate) : null,
-        notes: data.notes,
-        updatedAt: new Date(),
-      })
-      .where(eq(purchases.id, id))
-      .returning();
+    // Use transaction to ensure atomicity
+    const result = await dbPool.transaction(async (tx) => {
+      // Update purchase
+      const [purchase] = await tx
+        .update(purchases)
+        .set({
+          date: new Date(data.date),
+          supplierId: data.supplierId,
+          purchaseType: data.purchaseType,
+          roomId: data.roomId,
+          areaId: data.areaId,
+          totalAmount: totalAmount.toString(),
+          currency: data.currency,
+          paymentStatus: data.paymentStatus,
+          paymentDueDate: data.paymentDueDate ? new Date(data.paymentDueDate) : null,
+          notes: data.notes,
+          updatedAt: new Date(),
+        })
+        .where(eq(purchases.id, id))
+        .returning();
 
-    if (!purchase) {
-      return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
-    }
+      if (!purchase) {
+        throw new Error("Purchase not found");
+      }
 
-    // Delete existing line items and recreate
-    await db.delete(purchaseLineItems).where(eq(purchaseLineItems.purchaseId, id));
+      // Delete existing line items and recreate
+      await tx.delete(purchaseLineItems).where(eq(purchaseLineItems.purchaseId, id));
 
-    const lineItems = await db
-      .insert(purchaseLineItems)
-      .values(
-        data.lineItems.map((item) => ({
-          purchaseId: purchase.id,
-          description: item.description,
-          brand: item.brand,
-          quantity: item.quantity.toString(),
-          unitPrice: item.unitPrice.toString(),
-          totalPrice: (item.quantity * item.unitPrice).toString(),
-          warrantyMonths: item.warrantyMonths,
-          warrantyExpiresAt: item.warrantyMonths
-            ? new Date(
-                new Date(data.date).getTime() +
-                  item.warrantyMonths * 30 * 24 * 60 * 60 * 1000
-              )
-            : null,
-          notes: item.notes,
-        }))
-      )
-      .returning();
+      const lineItems = await tx
+        .insert(purchaseLineItems)
+        .values(
+          data.lineItems.map((item) => ({
+            purchaseId: purchase.id,
+            description: item.description,
+            brand: item.brand,
+            quantity: item.quantity.toString(),
+            unitPrice: item.unitPrice.toString(),
+            totalPrice: (item.quantity * item.unitPrice).toString(),
+            warrantyMonths: item.warrantyMonths,
+            warrantyExpiresAt: item.warrantyMonths
+              ? new Date(
+                  new Date(data.date).getTime() +
+                    item.warrantyMonths * 30 * 24 * 60 * 60 * 1000
+                )
+              : null,
+            notes: item.notes,
+          }))
+        )
+        .returning();
+
+      return { purchase, lineItems };
+    });
 
     return NextResponse.json({
-      ...purchase,
-      lineItems,
+      ...result.purchase,
+      lineItems: result.lineItems,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === "Purchase not found") {
+      return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid input", details: error.errors },

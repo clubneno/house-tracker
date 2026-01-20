@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, dbPool } from "@/lib/db";
 import { purchases, purchaseLineItems, suppliers, areas, rooms } from "@/lib/db/schema";
 import { neonAuth } from "@/lib/auth/server";
 import { eq, desc, and } from "drizzle-orm";
@@ -101,49 +101,54 @@ export async function POST(request: Request) {
       0
     );
 
-    // Create purchase
-    const [purchase] = await db
-      .insert(purchases)
-      .values({
-        date: new Date(data.date),
-        supplierId: data.supplierId,
-        purchaseType: data.purchaseType,
-        roomId: data.roomId,
-        areaId: data.areaId,
-        totalAmount: totalAmount.toString(),
-        currency: data.currency,
-        paymentStatus: data.paymentStatus,
-        paymentDueDate: data.paymentDueDate ? new Date(data.paymentDueDate) : null,
-        notes: data.notes,
-      })
-      .returning();
+    // Use transaction to ensure atomicity
+    const result = await dbPool.transaction(async (tx) => {
+      // Create purchase
+      const [purchase] = await tx
+        .insert(purchases)
+        .values({
+          date: new Date(data.date),
+          supplierId: data.supplierId,
+          purchaseType: data.purchaseType,
+          roomId: data.roomId,
+          areaId: data.areaId,
+          totalAmount: totalAmount.toString(),
+          currency: data.currency,
+          paymentStatus: data.paymentStatus,
+          paymentDueDate: data.paymentDueDate ? new Date(data.paymentDueDate) : null,
+          notes: data.notes,
+        })
+        .returning();
 
-    // Create line items
-    const lineItems = await db
-      .insert(purchaseLineItems)
-      .values(
-        data.lineItems.map((item) => ({
-          purchaseId: purchase.id,
-          description: item.description,
-          brand: item.brand,
-          quantity: item.quantity.toString(),
-          unitPrice: item.unitPrice.toString(),
-          totalPrice: (item.quantity * item.unitPrice).toString(),
-          warrantyMonths: item.warrantyMonths,
-          warrantyExpiresAt: item.warrantyMonths
-            ? new Date(
-                new Date(data.date).getTime() +
-                  item.warrantyMonths * 30 * 24 * 60 * 60 * 1000
-              )
-            : null,
-          notes: item.notes,
-        }))
-      )
-      .returning();
+      // Create line items
+      const lineItems = await tx
+        .insert(purchaseLineItems)
+        .values(
+          data.lineItems.map((item) => ({
+            purchaseId: purchase.id,
+            description: item.description,
+            brand: item.brand,
+            quantity: item.quantity.toString(),
+            unitPrice: item.unitPrice.toString(),
+            totalPrice: (item.quantity * item.unitPrice).toString(),
+            warrantyMonths: item.warrantyMonths,
+            warrantyExpiresAt: item.warrantyMonths
+              ? new Date(
+                  new Date(data.date).getTime() +
+                    item.warrantyMonths * 30 * 24 * 60 * 60 * 1000
+                )
+              : null,
+            notes: item.notes,
+          }))
+        )
+        .returning();
+
+      return { purchase, lineItems };
+    });
 
     return NextResponse.json({
-      ...purchase,
-      lineItems,
+      ...result.purchase,
+      lineItems: result.lineItems,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
