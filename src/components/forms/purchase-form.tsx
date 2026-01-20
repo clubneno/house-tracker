@@ -211,7 +211,7 @@ export function PurchaseForm({
               <Label htmlFor="supplierId">Supplier *</Label>
               <Select
                 value={watch("supplierId")}
-                onValueChange={(value) => setValue("supplierId", value)}
+                onValueChange={(value) => setValue("supplierId", value, { shouldValidate: true, shouldDirty: true })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select supplier" />
@@ -236,7 +236,7 @@ export function PurchaseForm({
               <Select
                 value={watch("purchaseType")}
                 onValueChange={(value: "service" | "materials" | "products" | "indirect") =>
-                  setValue("purchaseType", value)
+                  setValue("purchaseType", value, { shouldValidate: true, shouldDirty: true })
                 }
               >
                 <SelectTrigger>
@@ -256,7 +256,7 @@ export function PurchaseForm({
               <Select
                 value={watch("paymentStatus")}
                 onValueChange={(value: "pending" | "partial" | "paid") =>
-                  setValue("paymentStatus", value)
+                  setValue("paymentStatus", value, { shouldValidate: true, shouldDirty: true })
                 }
               >
                 <SelectTrigger>
@@ -277,8 +277,8 @@ export function PurchaseForm({
               <Select
                 value={watch("areaId") || ""}
                 onValueChange={(value) => {
-                  setValue("areaId", value);
-                  setValue("roomId", ""); // Reset room when area changes
+                  setValue("areaId", value, { shouldValidate: true, shouldDirty: true });
+                  setValue("roomId", "", { shouldValidate: true, shouldDirty: true }); // Reset room when area changes
                 }}
               >
                 <SelectTrigger>
@@ -299,7 +299,7 @@ export function PurchaseForm({
               <Label htmlFor="roomId">Room</Label>
               <Select
                 value={watch("roomId") || ""}
-                onValueChange={(value) => setValue("roomId", value)}
+                onValueChange={(value) => setValue("roomId", value, { shouldValidate: true, shouldDirty: true })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select room (optional)" />

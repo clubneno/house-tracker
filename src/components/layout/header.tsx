@@ -30,16 +30,15 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleSignOut = async () => {
     try {
-      await authClient.signOut();
-    } catch (e) {
-      // If sign-out fails due to CORS/origin issues, clear cookies manually
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
+      const result = await authClient.signOut();
+      if (result.error) {
+        console.error('Sign-out failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Sign-out error:', error);
     }
-    window.location.href = "/login";
+    router.push('/login');
+    router.refresh();
   };
 
   return (

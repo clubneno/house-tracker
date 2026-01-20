@@ -9,7 +9,7 @@ const roomSchema = z.object({
   areaId: z.string().uuid(),
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  budget: z.number().positive().optional().nullable(),
+  budget: z.number().nonnegative().optional().nullable(),
 });
 
 export async function GET(request: Request) {
