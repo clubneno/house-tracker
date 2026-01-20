@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { AddRoomWithAreaDialog } from "@/components/rooms/add-room-with-area-dialog";
 
 async function getRooms() {
   const result = await db
@@ -59,11 +60,14 @@ export default async function RoomsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Rooms</h1>
-        <p className="text-muted-foreground">
-          All rooms across your house
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Rooms</h1>
+          <p className="text-muted-foreground">
+            All rooms across your house
+          </p>
+        </div>
+        <AddRoomWithAreaDialog />
       </div>
 
       {roomList.length === 0 ? (
@@ -71,9 +75,7 @@ export default async function RoomsPage() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <DoorOpen className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">No rooms yet</p>
-            <p className="text-sm text-muted-foreground">
-              Create an area first, then add rooms to it
-            </p>
+            <AddRoomWithAreaDialog />
           </CardContent>
         </Card>
       ) : (
