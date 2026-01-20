@@ -29,9 +29,17 @@ export function Header({ onMenuClick }: HeaderProps) {
     .toUpperCase() || "U";
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push("/login");
-    router.refresh();
+    try {
+      await authClient.signOut();
+    } catch (e) {
+      // If sign-out fails due to CORS/origin issues, clear cookies manually
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+    }
+    window.location.href = "/login";
   };
 
   return (
