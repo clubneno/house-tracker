@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { rooms, areas, purchases, purchaseLineItems, attachments, suppliers } from "@/lib/db/schema";
-import { auth } from "@/lib/auth";
+import { neonAuth } from "@/lib/auth/server";
 import { eq, sum, desc, and } from "drizzle-orm";
 import { z } from "zod";
 
@@ -16,7 +16,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
+  const { session } = await neonAuth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -88,7 +88,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
+  const { session } = await neonAuth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -146,7 +146,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
+  const { session } = await neonAuth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

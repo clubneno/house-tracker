@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { auth } from "@/lib/auth";
+import { neonAuth } from "@/lib/auth/server";
 
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
-  const session = await auth();
+  const { session } = await neonAuth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { neonAuth } from "@/lib/auth/server";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 export default async function Layout({
@@ -7,7 +7,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const { session } = await neonAuth();
 
   if (!session) {
     redirect("/login");

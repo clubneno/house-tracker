@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { neonAuth } from "@/lib/auth/server";
 import { Building2 } from "lucide-react";
 
 export default async function AuthLayout({
@@ -7,7 +7,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const { session } = await neonAuth();
 
   if (session) {
     redirect("/");

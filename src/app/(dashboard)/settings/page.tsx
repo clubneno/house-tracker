@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { Settings, User, Bell, Palette, Save, Loader2 } from "lucide-react";
+import { authClient } from "@/lib/auth/client";
+import { User, Bell, Palette, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
