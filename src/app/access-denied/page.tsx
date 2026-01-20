@@ -6,7 +6,16 @@ import { ShieldX } from 'lucide-react';
 
 export default function AccessDeniedPage() {
   const handleSignOut = async () => {
-    await authClient.signOut();
+    try {
+      await authClient.signOut();
+    } catch (e) {
+      // If sign-out fails, clear cookies manually
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+    }
     window.location.href = '/login';
   };
 
