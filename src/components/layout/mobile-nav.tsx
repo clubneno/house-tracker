@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Home, Users, ShoppingCart, Layers, DoorOpen, FileText, Shield, Settings, Building2 } from "lucide-react";
+import { X, Home, Users, UsersRound, ShoppingCart, Layers, DoorOpen, FileText, Shield, Settings, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useUserRole } from "./dashboard-layout";
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
+}
+
+const navigation: NavigationItem[] = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Suppliers", href: "/suppliers", icon: Users },
   { name: "Purchases", href: "/purchases", icon: ShoppingCart },
@@ -14,6 +22,7 @@ const navigation = [
   { name: "Rooms", href: "/rooms", icon: DoorOpen },
   { name: "Warranties", href: "/warranties", icon: Shield },
   { name: "Reports", href: "/reports", icon: FileText },
+  { name: "User Management", href: "/admin/users", icon: UsersRound, adminOnly: true },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -24,6 +33,11 @@ interface MobileNavProps {
 
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const pathname = usePathname();
+  const userRole = useUserRole();
+
+  const filteredNavigation = navigation.filter(
+    (item) => !item.adminOnly || userRole === "admin"
+  );
 
   if (!open) return null;
 
@@ -49,7 +63,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
-                    {navigation.map((item) => {
+                    {filteredNavigation.map((item) => {
                       const isActive =
                         pathname === item.href ||
                         (item.href !== "/" && pathname.startsWith(item.href));

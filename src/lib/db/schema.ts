@@ -17,20 +17,22 @@ export const supplierTypeEnum = pgEnum("supplier_type", ["company", "individual"
 export const purchaseTypeEnum = pgEnum("purchase_type", ["service", "materials", "products", "indirect"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "partial", "paid"]);
 export const fileTypeEnum = pgEnum("file_type", ["invoice", "receipt", "photo", "document"]);
-export const userRoleEnum = pgEnum("user_role", ["owner", "viewer"]);
+export const userRoleEnum = pgEnum("user_role", ["admin", "editor", "viewer"]);
 
-// Users table
-export const users = pgTable("users", {
+// App Users table - links Neon Auth users to app-specific roles
+// Neon Auth stores users in neon_auth.users_sync, this table adds app-specific data
+export const appUsers = pgTable("app_users", {
   id: uuid("id").primaryKey().defaultRandom(),
+  neonAuthId: varchar("neon_auth_id", { length: 255 }).notNull().unique(), // ID from Neon Auth
   email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }),
-  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-  role: userRoleEnum("role").default("owner").notNull(),
+  role: userRoleEnum("role").default("viewer").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const appUsersRelations = relations(appUsers, ({ one }) => ({
   settings: one(userSettings),
 }));
 
@@ -38,15 +40,15 @@ export const usersRelations = relations(users, ({ one }) => ({
 export const userSettings = pgTable("user_settings", {
   userId: uuid("user_id")
     .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => appUsers.id, { onDelete: "cascade" }),
   defaultCurrency: varchar("default_currency", { length: 3 }).default("EUR").notNull(),
   notificationPreferences: jsonb("notification_preferences"),
 });
 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
-  user: one(users, {
+  user: one(appUsers, {
     fields: [userSettings.userId],
-    references: [users.id],
+    references: [appUsers.id],
   }),
 }));
 
@@ -206,8 +208,8 @@ export const attachmentsRelations = relations(attachments, ({ one }) => ({
 // Neon Auth stores user data in neon_auth.users_sync which can be joined with this table.
 
 // Type exports
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type AppUser = typeof appUsers.$inferSelect;
+export type NewAppUser = typeof appUsers.$inferInsert;
 export type Supplier = typeof suppliers.$inferSelect;
 export type NewSupplier = typeof suppliers.$inferInsert;
 export type Area = typeof areas.$inferSelect;

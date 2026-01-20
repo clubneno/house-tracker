@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Users,
+  UsersRound,
   ShoppingCart,
   Layers,
   DoorOpen,
@@ -14,8 +15,16 @@ import {
   Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { UserRole } from "@/lib/auth/utils";
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
+}
+
+const navigation: NavigationItem[] = [
   { name: "Dashboard", href: "/", icon: Home },
   { name: "Suppliers", href: "/suppliers", icon: Users },
   { name: "Purchases", href: "/purchases", icon: ShoppingCart },
@@ -23,11 +32,20 @@ const navigation = [
   { name: "Rooms", href: "/rooms", icon: DoorOpen },
   { name: "Warranties", href: "/warranties", icon: Shield },
   { name: "Reports", href: "/reports", icon: FileText },
+  { name: "User Management", href: "/admin/users", icon: UsersRound, adminOnly: true },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  userRole?: UserRole;
+}
+
+export function Sidebar({ userRole = "viewer" }: SidebarProps) {
   const pathname = usePathname();
+
+  const filteredNavigation = navigation.filter(
+    (item) => !item.adminOnly || userRole === "admin"
+  );
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
@@ -40,7 +58,7 @@ export function Sidebar() {
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" className="-mx-2 space-y-1">
-                {navigation.map((item) => {
+                {filteredNavigation.map((item) => {
                   const isActive =
                     pathname === item.href ||
                     (item.href !== "/" && pathname.startsWith(item.href));
