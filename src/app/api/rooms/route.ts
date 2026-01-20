@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const areaId = searchParams.get("areaId");
 
-  let query = db
+  const baseQuery = db
     .select({
       room: rooms,
       areaName: areas.name,
@@ -29,26 +29,16 @@ export async function GET(request: Request) {
     })
     .from(rooms)
     .leftJoin(areas, eq(rooms.areaId, areas.id))
-    .leftJoin(purchases, eq(purchases.roomId, rooms.id))
-    .groupBy(rooms.id, areas.name)
-    .orderBy(desc(rooms.createdAt));
+    .leftJoin(purchases, eq(purchases.roomId, rooms.id));
 
-  if (areaId) {
-    query = db
-      .select({
-        room: rooms,
-        areaName: areas.name,
-        totalSpending: sum(purchases.totalAmount),
-      })
-      .from(rooms)
-      .leftJoin(areas, eq(rooms.areaId, areas.id))
-      .leftJoin(purchases, eq(purchases.roomId, rooms.id))
-      .where(eq(rooms.areaId, areaId))
-      .groupBy(rooms.id, areas.name)
-      .orderBy(desc(rooms.createdAt));
-  }
-
-  const result = await query;
+  const result = areaId
+    ? await baseQuery
+        .where(eq(rooms.areaId, areaId))
+        .groupBy(rooms.id, areas.name)
+        .orderBy(desc(rooms.createdAt))
+    : await baseQuery
+        .groupBy(rooms.id, areas.name)
+        .orderBy(desc(rooms.createdAt));
 
   return NextResponse.json(
     result.map((r) => ({

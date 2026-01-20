@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { purchases, areas, rooms, suppliers, purchaseLineItems } from "@/lib/db/schema";

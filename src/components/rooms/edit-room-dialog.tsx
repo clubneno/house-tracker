@@ -20,8 +20,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import type { Room } from "@/lib/db/schema";
-
 const roomSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
@@ -31,7 +29,12 @@ const roomSchema = z.object({
 type RoomFormData = z.infer<typeof roomSchema>;
 
 interface EditRoomDialogProps {
-  room: Room;
+  room: {
+    id: string;
+    name: string;
+    description: string | null;
+    budget: string | null;
+  };
   areaId: string;
 }
 

@@ -11,31 +11,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { imageUrl, imageBase64, mimeType } = await request.json();
+    const { imageBase64, mimeType } = await request.json();
 
-    if (!imageUrl && !imageBase64) {
+    if (!imageBase64) {
       return NextResponse.json(
-        { error: "Image URL or base64 data is required" },
+        { error: "Base64 image data is required" },
         { status: 400 }
       );
     }
 
-    const imageContent: Anthropic.ImageBlockParam = imageBase64
-      ? {
-          type: "image",
-          source: {
-            type: "base64",
-            media_type: mimeType || "image/jpeg",
-            data: imageBase64,
-          },
-        }
-      : {
-          type: "image",
-          source: {
-            type: "url",
-            url: imageUrl,
-          },
-        };
+    const imageContent: Anthropic.ImageBlockParam = {
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: (mimeType || "image/jpeg") as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
+        data: imageBase64,
+      },
+    };
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
