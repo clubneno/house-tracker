@@ -92,6 +92,9 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Overview of your house construction finances",
+    "homes": "Homes",
+    "allHomes": "All Homes",
+    "allHomesDescription": "View data from all homes",
     "totalSpending": "Total Spending",
     "totalAmountSpent": "Total amount spent",
     "suppliers": "Suppliers",

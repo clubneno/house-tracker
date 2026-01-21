@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { Suspense } from "react";
 import { db } from "@/lib/db";
-import { purchases, areas, rooms, suppliers, purchaseLineItems, attachments, expenseCategories } from "@/lib/db/schema";
+import { purchases, areas, rooms, suppliers, purchaseLineItems, attachments, expenseCategories, homes } from "@/lib/db/schema";
 import { eq, sum, count, desc, and, gte, lte, isNull, or, isNotNull } from "drizzle-orm";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { StatsCards } from "@/components/dashboard/stats-cards";
@@ -16,8 +16,39 @@ import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
 import { ExpiringWarranties } from "@/components/dashboard/expiring-warranties";
 import { ExpiringDocuments } from "@/components/dashboard/expiring-documents";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardHomes } from "@/components/dashboard/dashboard-homes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
+async function getHomes() {
+  const homesList = await db
+    .select()
+    .from(homes)
+    .where(eq(homes.isDeleted, false));
+
+  // Get area counts and spending for each home
+  const homesWithStats = await Promise.all(
+    homesList.map(async (home) => {
+      const [areaCount] = await db
+        .select({ count: count() })
+        .from(areas)
+        .where(eq(areas.homeId, home.id));
+
+      const [spending] = await db
+        .select({ total: sum(purchases.totalAmount) })
+        .from(purchases)
+        .where(and(eq(purchases.homeId, home.id), eq(purchases.isDeleted, false)));
+
+      return {
+        ...home,
+        areaCount: areaCount?.count || 0,
+        totalSpending: Number(spending?.total || 0),
+      };
+    })
+  );
+
+  return homesWithStats;
+}
 
 async function getDashboardStats() {
   const [totalSpending] = await db
@@ -302,8 +333,9 @@ function StatsCardsSkeleton() {
 }
 
 export default async function DashboardPage() {
-  const [stats, spendingByArea, spendingByType, spendingByCategory, spendingByRoom, recentPurchases, upcomingPayments, expiringWarranties, expiringDocuments] =
+  const [homesList, stats, spendingByArea, spendingByType, spendingByCategory, spendingByRoom, recentPurchases, upcomingPayments, expiringWarranties, expiringDocuments] =
     await Promise.all([
+      getHomes(),
       getDashboardStats(),
       getSpendingByArea(),
       getSpendingByType(),
@@ -318,6 +350,8 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardHeader />
+
+      <DashboardHomes homes={homesList} />
 
       <Suspense fallback={<StatsCardsSkeleton />}>
         <StatsCards stats={stats} />

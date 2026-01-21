@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  HomeIcon,
   Users,
   UsersRound,
   ShoppingCart,
@@ -30,7 +29,6 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { nameKey: "nav.dashboard", href: "/", icon: Home },
-  { nameKey: "nav.homes", href: "/homes", icon: HomeIcon },
   { nameKey: "nav.suppliers", href: "/suppliers", icon: Users },
   { nameKey: "nav.purchases", href: "/purchases", icon: ShoppingCart },
   { nameKey: "nav.areas", href: "/areas", icon: Layers },

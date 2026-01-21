@@ -92,6 +92,9 @@
   "dashboard": {
     "title": "Valdymo skydelis",
     "subtitle": "Jūsų namo statybos finansų apžvalga",
+    "homes": "Namai",
+    "allHomes": "Visi namai",
+    "allHomesDescription": "Peržiūrėti visų namų duomenis",
     "totalSpending": "Bendros išlaidos",
     "totalAmountSpent": "Bendra išleista suma",
     "suppliers": "Tiekėjai",
