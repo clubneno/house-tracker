@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface SpendingByAreaChartProps {
   data: {
@@ -12,15 +13,17 @@ interface SpendingByAreaChartProps {
 }
 
 export function SpendingByAreaChart({ data }: SpendingByAreaChartProps) {
+  const { t } = useTranslation();
+
   if (data.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Spending by Area</CardTitle>
-          <CardDescription>Budget vs actual spending per area</CardDescription>
+          <CardTitle>{t("dashboard.spendingByArea")}</CardTitle>
+          <CardDescription>{t("dashboard.spendingByAreaDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[300px] items-center justify-center">
-          <p className="text-muted-foreground">No data available</p>
+          <p className="text-muted-foreground">{t("common.noData")}</p>
         </CardContent>
       </Card>
     );
@@ -29,8 +32,8 @@ export function SpendingByAreaChart({ data }: SpendingByAreaChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Spending by Area</CardTitle>
-        <CardDescription>Budget vs actual spending per area</CardDescription>
+        <CardTitle>{t("dashboard.spendingByArea")}</CardTitle>
+        <CardDescription>{t("dashboard.spendingByAreaDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -54,8 +57,8 @@ export function SpendingByAreaChart({ data }: SpendingByAreaChartProps) {
               labelStyle={{ color: "#000" }}
             />
             <Legend />
-            <Bar dataKey="budget" name="Budget" fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="spent" name="Spent" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="budget" name={t("dashboard.budget")} fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="spent" name={t("dashboard.spent")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

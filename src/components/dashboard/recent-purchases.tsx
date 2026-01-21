@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface RecentPurchasesProps {
   purchases: {
@@ -15,13 +18,6 @@ interface RecentPurchasesProps {
   }[];
 }
 
-const typeLabels: Record<string, string> = {
-  service: "Service",
-  materials: "Materials",
-  products: "Products",
-  indirect: "Indirect",
-};
-
 const statusVariants: Record<string, "default" | "secondary" | "success" | "warning"> = {
   pending: "warning",
   partial: "secondary",
@@ -29,18 +25,32 @@ const statusVariants: Record<string, "default" | "secondary" | "success" | "warn
 };
 
 export function RecentPurchases({ purchases }: RecentPurchasesProps) {
+  const { t } = useTranslation();
+
+  const typeLabels: Record<string, string> = {
+    service: t("purchaseTypes.service"),
+    materials: t("purchaseTypes.materials"),
+    products: t("purchaseTypes.products"),
+    indirect: t("purchaseTypes.indirect"),
+  };
+
+  const statusLabels: Record<string, string> = {
+    pending: t("purchases.pending"),
+    partial: t("purchases.partial"),
+    paid: t("purchases.paid"),
+  };
+
   if (purchases.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Recent Purchases</CardTitle>
-          <CardDescription>Latest purchase transactions</CardDescription>
+          <CardTitle>{t("dashboard.recentPurchases")}</CardTitle>
         </CardHeader>
         <CardContent className="flex h-[200px] items-center justify-center">
           <div className="text-center">
-            <p className="text-muted-foreground">No purchases yet</p>
+            <p className="text-muted-foreground">{t("common.noPurchases")}</p>
             <Button asChild className="mt-4">
-              <Link href="/purchases/new">Add Purchase</Link>
+              <Link href="/purchases/new">{t("purchases.addPurchase")}</Link>
             </Button>
           </div>
         </CardContent>
@@ -52,11 +62,10 @@ export function RecentPurchases({ purchases }: RecentPurchasesProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Recent Purchases</CardTitle>
-          <CardDescription>Latest purchase transactions</CardDescription>
+          <CardTitle>{t("dashboard.recentPurchases")}</CardTitle>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href="/purchases">View all</Link>
+          <Link href="/purchases">{t("common.viewAll")}</Link>
         </Button>
       </CardHeader>
       <CardContent>
@@ -81,7 +90,7 @@ export function RecentPurchases({ purchases }: RecentPurchasesProps) {
               <div className="text-right">
                 <div className="font-medium">{formatCurrency(purchase.totalAmount)}</div>
                 <Badge variant={statusVariants[purchase.paymentStatus]}>
-                  {purchase.paymentStatus}
+                  {statusLabels[purchase.paymentStatus]}
                 </Badge>
               </div>
             </div>

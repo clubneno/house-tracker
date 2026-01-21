@@ -8,7 +8,9 @@ import { z } from "zod";
 const roomSchema = z.object({
   areaId: z.string().uuid(),
   name: z.string().min(1, "Name is required"),
+  nameLt: z.string().optional().nullable(),
   description: z.string().optional(),
+  descriptionLt: z.string().optional().nullable(),
   budget: z.number().positive().optional().nullable(),
 });
 
@@ -115,7 +117,9 @@ export async function PUT(
       .set({
         areaId: data.areaId,
         name: data.name,
+        nameLt: data.nameLt,
         description: data.description,
+        descriptionLt: data.descriptionLt,
         budget: data.budget?.toString(),
         updatedAt: new Date(),
       })

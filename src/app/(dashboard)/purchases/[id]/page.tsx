@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeletePurchaseButton } from "@/components/purchases/delete-purchase-button";
+import { PurchaseAttachments } from "@/components/purchases/purchase-attachments";
 
 const typeLabels: Record<string, string> = {
   service: "Service",
@@ -45,21 +46,24 @@ async function getPurchase(id: string) {
       supplierType: suppliers.type,
       supplierEmail: suppliers.email,
       supplierPhone: suppliers.phone,
-      areaName: areas.name,
-      roomName: rooms.name,
     })
     .from(purchases)
     .leftJoin(suppliers, eq(purchases.supplierId, suppliers.id))
-    .leftJoin(areas, eq(purchases.areaId, areas.id))
-    .leftJoin(rooms, eq(purchases.roomId, rooms.id))
     .where(and(eq(purchases.id, id), eq(purchases.isDeleted, false)))
     .limit(1);
 
   if (!result) return null;
 
-  const lineItems = await db
-    .select()
+  // Get line items with area/room names
+  const lineItemsWithAreas = await db
+    .select({
+      lineItem: purchaseLineItems,
+      areaName: areas.name,
+      roomName: rooms.name,
+    })
     .from(purchaseLineItems)
+    .leftJoin(areas, eq(purchaseLineItems.areaId, areas.id))
+    .leftJoin(rooms, eq(purchaseLineItems.roomId, rooms.id))
     .where(eq(purchaseLineItems.purchaseId, id));
 
   const purchaseAttachments = await db
@@ -76,13 +80,13 @@ async function getPurchase(id: string) {
         : `${result.supplierFirstName} ${result.supplierLastName}`,
     supplierEmail: result.supplierEmail,
     supplierPhone: result.supplierPhone,
-    areaName: result.areaName,
-    roomName: result.roomName,
-    lineItems: lineItems.map((item) => ({
-      ...item,
-      quantity: Number(item.quantity),
-      unitPrice: Number(item.unitPrice),
-      totalPrice: Number(item.totalPrice),
+    lineItems: lineItemsWithAreas.map((row) => ({
+      ...row.lineItem,
+      quantity: Number(row.lineItem.quantity),
+      unitPrice: Number(row.lineItem.unitPrice),
+      totalPrice: Number(row.lineItem.totalPrice),
+      areaName: row.areaName,
+      roomName: row.roomName,
     })),
     attachments: purchaseAttachments,
   };
@@ -145,6 +149,7 @@ export default async function PurchaseDetailPage({
                   <TableRow>
                     <TableHead>Description</TableHead>
                     <TableHead>Brand</TableHead>
+                    <TableHead>Location</TableHead>
                     <TableHead className="text-right">Qty</TableHead>
                     <TableHead className="text-right">Unit Price</TableHead>
                     <TableHead className="text-right">Total</TableHead>
@@ -165,6 +170,22 @@ export default async function PurchaseDetailPage({
                         </div>
                       </TableCell>
                       <TableCell>{item.brand || "-"}</TableCell>
+                      <TableCell>
+                        {item.roomName ? (
+                          <>
+                            {item.roomName}
+                            {item.areaName && (
+                              <span className="text-muted-foreground text-sm">
+                                {" "}({item.areaName})
+                              </span>
+                            )}
+                          </>
+                        ) : item.areaName ? (
+                          item.areaName
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(item.unitPrice)}
@@ -177,7 +198,7 @@ export default async function PurchaseDetailPage({
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={4}>Total</TableCell>
+                    <TableCell colSpan={5}>Total</TableCell>
                     <TableCell className="text-right font-bold">
                       {formatCurrency(purchase.totalAmount)}
                     </TableCell>
@@ -187,37 +208,10 @@ export default async function PurchaseDetailPage({
             </CardContent>
           </Card>
 
-          {purchase.attachments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Attachments
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {purchase.attachments.map((attachment) => (
-                    <a
-                      key={attachment.id}
-                      href={attachment.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <Receipt className="h-8 w-8 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium truncate">{attachment.fileName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {attachment.fileType}
-                        </p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <PurchaseAttachments
+            purchaseId={id}
+            attachments={purchase.attachments}
+          />
 
           {purchase.notes && (
             <Card>
@@ -264,28 +258,6 @@ export default async function PurchaseDetailPage({
                   </div>
                 </>
               )}
-
-              <Separator />
-
-              <div>
-                <p className="text-sm text-muted-foreground">Location</p>
-                <p className="font-medium mt-1">
-                  {purchase.roomName ? (
-                    <>
-                      {purchase.roomName}
-                      {purchase.areaName && (
-                        <span className="text-muted-foreground">
-                          {" "}({purchase.areaName})
-                        </span>
-                      )}
-                    </>
-                  ) : purchase.areaName ? (
-                    purchase.areaName
-                  ) : (
-                    <span className="text-muted-foreground">Not specified</span>
-                  )}
-                </p>
-              </div>
             </CardContent>
           </Card>
 

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 import type { Supplier } from "@/lib/db/schema";
 
 const supplierSchema = z
@@ -54,6 +55,7 @@ interface SupplierFormProps {
 export function SupplierForm({ supplier }: SupplierFormProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [rating, setRating] = useState<number | null>(supplier?.rating || null);
 
@@ -98,22 +100,22 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to save supplier");
+        throw new Error(error.error || t("suppliers.saveFailed"));
       }
 
       toast({
-        title: "Success",
+        title: t("common.success"),
         description: supplier
-          ? "Supplier updated successfully"
-          : "Supplier created successfully",
+          ? t("suppliers.supplierUpdated")
+          : t("suppliers.supplierCreated"),
       });
 
       router.push("/suppliers");
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("common.error"),
         variant: "destructive",
       });
     } finally {
@@ -126,7 +128,7 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
       <Card>
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="type">Supplier Type</Label>
+            <Label htmlFor="type">{t("suppliers.supplierType")}</Label>
             <Select
               value={supplierType}
               onValueChange={(value: "company" | "individual") =>
@@ -134,11 +136,11 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select type" />
+                <SelectValue placeholder={t("suppliers.selectType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="company">Company</SelectItem>
-                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="company">{t("suppliers.company")}</SelectItem>
+                <SelectItem value="individual">{t("suppliers.individual")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -146,54 +148,54 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
           {supplierType === "company" ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name *</Label>
+                <Label htmlFor="companyName">{t("suppliers.companyName")} *</Label>
                 <Input
                   id="companyName"
                   {...register("companyName")}
-                  placeholder="Enter company name"
+                  placeholder={t("suppliers.enterCompanyName")}
                 />
                 {errors.companyName && (
                   <p className="text-sm text-destructive">
-                    Company name is required
+                    {t("suppliers.companyNameRequired")}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="companyAddress">Address</Label>
+                <Label htmlFor="companyAddress">{t("suppliers.address")}</Label>
                 <Textarea
                   id="companyAddress"
                   {...register("companyAddress")}
-                  placeholder="Enter company address"
+                  placeholder={t("suppliers.enterCompanyAddress")}
                 />
               </div>
             </>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="firstName">{t("suppliers.firstName")} *</Label>
                 <Input
                   id="firstName"
                   {...register("firstName")}
-                  placeholder="Enter first name"
+                  placeholder={t("suppliers.enterFirstName")}
                 />
                 {errors.firstName && (
                   <p className="text-sm text-destructive">
-                    First name is required
+                    {t("suppliers.firstNameRequired")}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName">{t("suppliers.lastName")} *</Label>
                 <Input
                   id="lastName"
                   {...register("lastName")}
-                  placeholder="Enter last name"
+                  placeholder={t("suppliers.enterLastName")}
                 />
                 {errors.lastName && (
                   <p className="text-sm text-destructive">
-                    Last name is required
+                    {t("suppliers.lastNameRequired")}
                   </p>
                 )}
               </div>
@@ -202,7 +204,7 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("suppliers.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -211,23 +213,23 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
               />
               {errors.email && (
                 <p className="text-sm text-destructive">
-                  Please enter a valid email
+                  {t("suppliers.validEmail")}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("suppliers.phone")}</Label>
               <Input
                 id="phone"
                 {...register("phone")}
-                placeholder="+1 234 567 8900"
+                placeholder="+370 600 00000"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Rating</Label>
+            <Label>{t("suppliers.rating")}</Label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -251,18 +253,18 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
                   onClick={() => setRating(null)}
                   className="ml-2 text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Clear
+                  {t("suppliers.clear")}
                 </button>
               )}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{t("suppliers.notes")}</Label>
             <Textarea
               id="notes"
               {...register("notes")}
-              placeholder="Add any additional notes..."
+              placeholder={t("suppliers.addNotes")}
               rows={4}
             />
           </div>
@@ -275,11 +277,11 @@ export function SupplierForm({ supplier }: SupplierFormProps) {
             onClick={() => router.back()}
             disabled={isLoading}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {supplier ? "Update Supplier" : "Create Supplier"}
+            {supplier ? t("suppliers.updateSupplier") : t("suppliers.createSupplier")}
           </Button>
         </CardFooter>
       </Card>

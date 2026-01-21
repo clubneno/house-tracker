@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CalendarClock } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface UpcomingPaymentsProps {
   payments: {
@@ -13,15 +16,17 @@ interface UpcomingPaymentsProps {
 }
 
 export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
+  const { t } = useTranslation();
+
   if (payments.length === 0) {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center gap-2">
           <CalendarClock className="h-5 w-5 text-muted-foreground" />
-          <CardTitle className="text-base">Upcoming Payments</CardTitle>
+          <CardTitle className="text-base">{t("dashboard.upcomingPayments")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No upcoming payments</p>
+          <p className="text-sm text-muted-foreground">{t("common.noPayments")}</p>
         </CardContent>
       </Card>
     );
@@ -31,7 +36,7 @@ export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
     <Card>
       <CardHeader className="flex flex-row items-center gap-2">
         <CalendarClock className="h-5 w-5 text-muted-foreground" />
-        <CardTitle className="text-base">Upcoming Payments</CardTitle>
+        <CardTitle className="text-base">{t("dashboard.upcomingPayments")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -44,7 +49,7 @@ export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
               <div>
                 <div className="font-medium">{payment.supplierName}</div>
                 <div className="text-muted-foreground text-xs">
-                  Due: {payment.paymentDueDate ? formatDate(payment.paymentDueDate) : "N/A"}
+                  {payment.paymentDueDate ? formatDate(payment.paymentDueDate) : "N/A"}
                 </div>
               </div>
               <div className="font-medium">{formatCurrency(payment.totalAmount)}</div>

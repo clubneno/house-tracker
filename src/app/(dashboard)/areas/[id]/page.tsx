@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { areas, rooms, purchases } from "@/lib/db/schema";
-import { eq, sum, desc, and } from "drizzle-orm";
+import { eq, sum, desc, and, count } from "drizzle-orm";
 import { ArrowLeft, Layers, DoorOpen, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,8 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { AddRoomDialog } from "@/components/rooms/add-room-dialog";
 import { EditAreaDialog } from "@/components/areas/edit-area-dialog";
 import { DeleteAreaButton } from "@/components/areas/delete-area-button";
+import { AreaExpensesByCategory } from "@/components/areas/area-expenses-by-category";
+import { ExpenseCategory } from "@/lib/categories";
 
 async function getArea(id: string) {
   const [area] = await db
@@ -53,6 +55,17 @@ async function getArea(id: string) {
     .from(purchases)
     .where(and(eq(purchases.areaId, id), eq(purchases.isDeleted, false)));
 
+  // Get spending by category
+  const categorySpending = await db
+    .select({
+      category: purchases.expenseCategory,
+      total: sum(purchases.totalAmount),
+      count: count(),
+    })
+    .from(purchases)
+    .where(and(eq(purchases.areaId, id), eq(purchases.isDeleted, false)))
+    .groupBy(purchases.expenseCategory);
+
   return {
     ...area,
     rooms: areaRooms.map((r) => ({
@@ -60,6 +73,11 @@ async function getArea(id: string) {
       totalSpending: spendingMap.get(r.room.id) || 0,
     })),
     totalSpending: Number(totalSpending?.total || 0),
+    categoryExpenses: categorySpending.map((c) => ({
+      category: c.category as ExpenseCategory | null,
+      total: Number(c.total || 0),
+      count: Number(c.count || 0),
+    })),
   };
 }
 
@@ -152,6 +170,13 @@ export default async function AreaDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {area.categoryExpenses.length > 0 && (
+        <AreaExpensesByCategory
+          expenses={area.categoryExpenses}
+          totalSpending={area.totalSpending}
+        />
+      )}
 
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Rooms</h2>

@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -21,6 +23,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { data: session } = authClient.useSession();
+  const { t } = useTranslation();
 
   const userInitials = session?.user?.name
     ?.split(" ")
@@ -58,6 +61,8 @@ export function Header({ onMenuClick }: HeaderProps) {
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1" />
         <div className="flex items-center gap-x-4 lg:gap-x-6">
+          <LanguageSwitcher />
+
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <span className="sr-only">View notifications</span>
@@ -88,7 +93,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <DropdownMenuItem asChild>
                 <a href="/settings" className="flex items-center">
                   <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                  <span>{t("nav.profile")}</span>
                 </a>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -97,7 +102,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 className="text-destructive focus:text-destructive"
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>{t("nav.logOut")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

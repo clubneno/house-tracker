@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDate } from "@/lib/utils";
 import { Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface ExpiringWarrantiesProps {
   warranties: {
@@ -20,15 +22,17 @@ function getDaysUntilExpiry(date: Date): number {
 }
 
 export function ExpiringWarranties({ warranties }: ExpiringWarrantiesProps) {
+  const { t } = useTranslation();
+
   if (warranties.length === 0) {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <CardTitle className="text-base">Expiring Warranties</CardTitle>
+          <CardTitle className="text-base">{t("dashboard.expiringWarranties")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No warranties expiring soon</p>
+          <p className="text-sm text-muted-foreground">{t("common.noWarranties")}</p>
         </CardContent>
       </Card>
     );
@@ -39,10 +43,10 @@ export function ExpiringWarranties({ warranties }: ExpiringWarrantiesProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-muted-foreground" />
-          <CardTitle className="text-base">Expiring Warranties</CardTitle>
+          <CardTitle className="text-base">{t("dashboard.expiringWarranties")}</CardTitle>
         </div>
         <Link href="/warranties" className="text-sm text-primary hover:underline">
-          View all
+          {t("common.viewAll")}
         </Link>
       </CardHeader>
       <CardContent>
@@ -65,7 +69,7 @@ export function ExpiringWarranties({ warranties }: ExpiringWarrantiesProps) {
                   )}
                 </div>
                 <Badge variant={isUrgent ? "destructive" : "secondary"}>
-                  {daysLeft} days
+                  {daysLeft} {t("common.days")}
                 </Badge>
               </div>
             );

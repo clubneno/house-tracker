@@ -1,7 +1,8 @@
 "use client";
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface SpendingByTypeChartProps {
   data: {
@@ -17,14 +18,16 @@ const COLORS = [
   "hsl(var(--chart-4))",
 ];
 
-const typeLabels: Record<string, string> = {
-  service: "Services",
-  materials: "Materials",
-  products: "Products",
-  indirect: "Indirect Costs",
-};
-
 export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
+  const { t } = useTranslation();
+
+  const typeLabels: Record<string, string> = {
+    service: t("purchaseTypes.service"),
+    materials: t("purchaseTypes.materials"),
+    products: t("purchaseTypes.products"),
+    indirect: t("purchaseTypes.indirect"),
+  };
+
   const formattedData = data.map((d) => ({
     ...d,
     name: typeLabels[d.name] || d.name,
@@ -34,11 +37,11 @@ export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Spending by Type</CardTitle>
-          <CardDescription>Distribution of expenses by category</CardDescription>
+          <CardTitle>{t("dashboard.spendingByType")}</CardTitle>
+          <CardDescription>{t("dashboard.spendingByTypeDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[300px] items-center justify-center">
-          <p className="text-muted-foreground">No data available</p>
+          <p className="text-muted-foreground">{t("common.noData")}</p>
         </CardContent>
       </Card>
     );
@@ -47,8 +50,8 @@ export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Spending by Type</CardTitle>
-        <CardDescription>Distribution of expenses by category</CardDescription>
+        <CardTitle>{t("dashboard.spendingByType")}</CardTitle>
+        <CardDescription>{t("dashboard.spendingByTypeDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

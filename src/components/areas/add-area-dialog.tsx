@@ -19,12 +19,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
+import { useHome } from "@/lib/contexts/home-context";
 
 const areaSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  nameLt: z.string().optional(),
   description: z.string().optional(),
+  descriptionLt: z.string().optional(),
   budget: z.string().optional(),
+  homeId: z.string().optional(),
 });
 
 type AreaFormData = z.infer<typeof areaSchema>;
@@ -32,6 +44,8 @@ type AreaFormData = z.infer<typeof areaSchema>;
 export function AddAreaDialog() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const { homes, selectedHomeId } = useHome();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,10 +53,17 @@ export function AddAreaDialog() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AreaFormData>({
     resolver: zodResolver(areaSchema),
+    defaultValues: {
+      homeId: selectedHomeId || undefined,
+    },
   });
+
+  const selectedHomeIdForm = watch("homeId");
 
   const onSubmit = async (data: AreaFormData) => {
     setIsLoading(true);
@@ -52,8 +73,11 @@ export function AddAreaDialog() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: data.name,
+          nameLt: data.nameLt || null,
           description: data.description,
+          descriptionLt: data.descriptionLt || null,
           budget: data.budget ? parseFloat(data.budget) : null,
+          homeId: data.homeId || null,
         }),
       });
 
@@ -62,8 +86,8 @@ export function AddAreaDialog() {
       }
 
       toast({
-        title: "Success",
-        description: "Area created successfully",
+        title: t("common.success"),
+        description: t("areas.areaCreated"),
       });
 
       setOpen(false);
@@ -71,8 +95,8 @@ export function AddAreaDialog() {
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create area",
+        title: t("common.error"),
+        description: t("areas.areaCreateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -85,41 +109,82 @@ export function AddAreaDialog() {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Add Area
+          {t("areas.addArea")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add New Area</DialogTitle>
+            <DialogTitle>{t("areas.addNewArea")}</DialogTitle>
             <DialogDescription>
-              Create a new area to organize your rooms
+              {t("areas.createDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="e.g., Ground Floor, Garden"
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
+            {homes.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="homeId">{t("areas.home")}</Label>
+                <Select
+                  value={selectedHomeIdForm || ""}
+                  onValueChange={(value) => setValue("homeId", value || undefined)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("areas.selectHome")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {homes.map((home) => (
+                      <SelectItem key={home.id} value={home.id}>
+                        {home.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">{t("areas.name")} *</Label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder={t("areas.namePlaceholder")}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{t("areas.nameRequired")}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nameLt">{t("areas.nameLt")}</Label>
+                <Input
+                  id="nameLt"
+                  {...register("nameLt")}
+                  placeholder={t("areas.nameLtPlaceholder")}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="description">{t("areas.description")}</Label>
+                <Textarea
+                  id="description"
+                  {...register("description")}
+                  placeholder={t("areas.descriptionPlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="descriptionLt">{t("areas.descriptionLt")}</Label>
+                <Textarea
+                  id="descriptionLt"
+                  {...register("descriptionLt")}
+                  placeholder={t("areas.descriptionLtPlaceholder")}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder="Optional description"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budget">Budget (EUR)</Label>
+              <Label htmlFor="budget">{t("areas.budgetEur")}</Label>
               <Input
                 id="budget"
                 type="number"
@@ -137,11 +202,11 @@ export function AddAreaDialog() {
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Area
+              {t("areas.createArea")}
             </Button>
           </DialogFooter>
         </form>

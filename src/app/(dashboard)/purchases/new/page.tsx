@@ -2,8 +2,9 @@ export const dynamic = 'force-dynamic';
 
 import { db } from "@/lib/db";
 import { suppliers, areas, rooms } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { PurchaseForm } from "@/components/forms/purchase-form";
+import { NewPurchaseHeader } from "@/components/purchases/new-purchase-header";
 
 async function getFormData() {
   const [supplierList, areaList, roomList] = await Promise.all([
@@ -44,12 +45,7 @@ export default async function NewPurchasePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add Purchase</h1>
-        <p className="text-muted-foreground">
-          Record a new purchase with line items
-        </p>
-      </div>
+      <NewPurchaseHeader />
 
       <PurchaseForm
         suppliers={suppliers}

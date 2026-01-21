@@ -20,10 +20,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 
 const roomSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  nameLt: z.string().optional(),
   description: z.string().optional(),
+  descriptionLt: z.string().optional(),
   budget: z.string().optional(),
 });
 
@@ -37,6 +40,7 @@ interface AddRoomDialogProps {
 export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,7 +62,9 @@ export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
         body: JSON.stringify({
           areaId,
           name: data.name,
+          nameLt: data.nameLt || null,
           description: data.description,
+          descriptionLt: data.descriptionLt || null,
           budget: data.budget ? parseFloat(data.budget) : null,
         }),
       });
@@ -68,8 +74,8 @@ export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
       }
 
       toast({
-        title: "Success",
-        description: "Room created successfully",
+        title: t("common.success"),
+        description: t("rooms.roomCreated"),
       });
 
       setOpen(false);
@@ -77,8 +83,8 @@ export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create room",
+        title: t("common.error"),
+        description: t("rooms.roomCreateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -91,41 +97,61 @@ export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Add Room
+          {t("rooms.addRoom")}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add New Room</DialogTitle>
+            <DialogTitle>{t("rooms.addNewRoom")}</DialogTitle>
             <DialogDescription>
-              Add a room to {areaName}
+              {t("rooms.addToArea").replace("{area}", areaName)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="e.g., Master Bedroom, Kitchen"
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="name">{t("rooms.name")} *</Label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder={t("rooms.namePlaceholder")}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nameLt">{t("rooms.nameLt")}</Label>
+                <Input
+                  id="nameLt"
+                  {...register("nameLt")}
+                  placeholder={t("rooms.nameLtPlaceholder")}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="description">{t("rooms.description")}</Label>
+                <Textarea
+                  id="description"
+                  {...register("description")}
+                  placeholder={t("rooms.descriptionPlaceholder")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="descriptionLt">{t("rooms.descriptionLt")}</Label>
+                <Textarea
+                  id="descriptionLt"
+                  {...register("descriptionLt")}
+                  placeholder={t("rooms.descriptionLtPlaceholder")}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder="Optional description"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budget">Budget (EUR)</Label>
+              <Label htmlFor="budget">{t("rooms.budgetEur")}</Label>
               <Input
                 id="budget"
                 type="number"
@@ -143,11 +169,11 @@ export function AddRoomDialog({ areaId, areaName }: AddRoomDialogProps) {
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Room
+              {t("rooms.createRoom")}
             </Button>
           </DialogFooter>
         </form>

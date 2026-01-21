@@ -11,6 +11,8 @@ const lineItemSchema = z.object({
   brand: z.string().optional().nullable(),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
+  areaId: z.string().uuid().optional().nullable(),
+  roomId: z.string().uuid().optional().nullable(),
   warrantyMonths: z.number().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
@@ -19,8 +21,8 @@ const purchaseSchema = z.object({
   date: z.string(),
   supplierId: z.string().uuid(),
   purchaseType: z.enum(["service", "materials", "products", "indirect"]),
-  roomId: z.string().uuid().optional().nullable(),
-  areaId: z.string().uuid().optional().nullable(),
+  // Changed from enum to string to support user-defined categories
+  expenseCategory: z.string().max(100).optional().nullable(),
   currency: z.string().default("EUR"),
   paymentStatus: z.enum(["pending", "partial", "paid"]).default("pending"),
   paymentDueDate: z.string().optional().nullable(),
@@ -62,10 +64,16 @@ export async function GET(
     return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
   }
 
-  // Get line items
-  const lineItems = await db
-    .select()
+  // Get line items with area/room names
+  const lineItemsWithAreas = await db
+    .select({
+      lineItem: purchaseLineItems,
+      areaName: areas.name,
+      roomName: rooms.name,
+    })
     .from(purchaseLineItems)
+    .leftJoin(areas, eq(purchaseLineItems.areaId, areas.id))
+    .leftJoin(rooms, eq(purchaseLineItems.roomId, rooms.id))
     .where(eq(purchaseLineItems.purchaseId, id));
 
   // Get attachments
@@ -85,11 +93,13 @@ export async function GET(
     supplierPhone: result.supplierPhone,
     areaName: result.areaName,
     roomName: result.roomName,
-    lineItems: lineItems.map((item) => ({
-      ...item,
-      quantity: Number(item.quantity),
-      unitPrice: Number(item.unitPrice),
-      totalPrice: Number(item.totalPrice),
+    lineItems: lineItemsWithAreas.map((row) => ({
+      ...row.lineItem,
+      quantity: Number(row.lineItem.quantity),
+      unitPrice: Number(row.lineItem.unitPrice),
+      totalPrice: Number(row.lineItem.totalPrice),
+      areaName: row.areaName,
+      roomName: row.roomName,
     })),
     attachments: purchaseAttachments,
   });
@@ -116,6 +126,19 @@ export async function PUT(
       0
     );
 
+    // Determine homeId from line items' areas (preserve association)
+    let homeId: string | null = null;
+    const areaId = data.lineItems.find(item => item.areaId)?.areaId;
+    if (areaId) {
+      const [areaData] = await db
+        .select({ homeId: areas.homeId })
+        .from(areas)
+        .where(eq(areas.id, areaId));
+      if (areaData?.homeId) {
+        homeId = areaData.homeId;
+      }
+    }
+
     // Use transaction to ensure atomicity
     const result = await dbPool.transaction(async (tx) => {
       // Update purchase
@@ -125,13 +148,13 @@ export async function PUT(
           date: new Date(data.date),
           supplierId: data.supplierId,
           purchaseType: data.purchaseType,
-          roomId: data.roomId,
-          areaId: data.areaId,
+          expenseCategory: data.expenseCategory,
           totalAmount: totalAmount.toString(),
           currency: data.currency,
           paymentStatus: data.paymentStatus,
           paymentDueDate: data.paymentDueDate ? new Date(data.paymentDueDate) : null,
           notes: data.notes,
+          homeId: homeId,
           updatedAt: new Date(),
         })
         .where(eq(purchases.id, id))
@@ -154,6 +177,8 @@ export async function PUT(
             quantity: item.quantity.toString(),
             unitPrice: item.unitPrice.toString(),
             totalPrice: (item.quantity * item.unitPrice).toString(),
+            areaId: item.areaId,
+            roomId: item.roomId,
             warrantyMonths: item.warrantyMonths,
             warrantyExpiresAt: item.warrantyMonths
               ? new Date(

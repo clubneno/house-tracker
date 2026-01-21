@@ -4,36 +4,42 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
+  HomeIcon,
   Users,
   UsersRound,
   ShoppingCart,
   Layers,
   DoorOpen,
   FileText,
+  FolderOpen,
   Shield,
   Settings,
   Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/auth/utils";
+import { useTranslation } from "@/lib/i18n/client";
+import { HomeSelector } from "@/components/homes/home-selector";
 
 interface NavigationItem {
-  name: string;
+  nameKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   adminOnly?: boolean;
 }
 
 const navigation: NavigationItem[] = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Suppliers", href: "/suppliers", icon: Users },
-  { name: "Purchases", href: "/purchases", icon: ShoppingCart },
-  { name: "Areas", href: "/areas", icon: Layers },
-  { name: "Rooms", href: "/rooms", icon: DoorOpen },
-  { name: "Warranties", href: "/warranties", icon: Shield },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "User Management", href: "/admin/users", icon: UsersRound, adminOnly: true },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { nameKey: "nav.dashboard", href: "/", icon: Home },
+  { nameKey: "nav.homes", href: "/homes", icon: HomeIcon },
+  { nameKey: "nav.suppliers", href: "/suppliers", icon: Users },
+  { nameKey: "nav.purchases", href: "/purchases", icon: ShoppingCart },
+  { nameKey: "nav.areas", href: "/areas", icon: Layers },
+  { nameKey: "nav.rooms", href: "/rooms", icon: DoorOpen },
+  { nameKey: "nav.documents", href: "/documents", icon: FolderOpen },
+  { nameKey: "nav.warranties", href: "/warranties", icon: Shield },
+  { nameKey: "nav.reports", href: "/reports", icon: FileText },
+  { nameKey: "nav.userManagement", href: "/admin/users", icon: UsersRound, adminOnly: true },
+  { nameKey: "nav.settings", href: "/settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -42,6 +48,7 @@ interface SidebarProps {
 
 export function Sidebar({ userRole = "viewer" }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const filteredNavigation = navigation.filter(
     (item) => !item.adminOnly || userRole === "admin"
@@ -54,6 +61,9 @@ export function Sidebar({ userRole = "viewer" }: SidebarProps) {
           <Building2 className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold">House Tracker</span>
         </div>
+        <div className="-mx-4">
+          <HomeSelector />
+        </div>
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
@@ -63,7 +73,7 @@ export function Sidebar({ userRole = "viewer" }: SidebarProps) {
                     pathname === item.href ||
                     (item.href !== "/" && pathname.startsWith(item.href));
                   return (
-                    <li key={item.name}>
+                    <li key={item.nameKey}>
                       <Link
                         href={item.href}
                         className={cn(
@@ -74,7 +84,7 @@ export function Sidebar({ userRole = "viewer" }: SidebarProps) {
                         )}
                       >
                         <item.icon className="h-5 w-5 shrink-0" />
-                        {item.name}
+                        {t(item.nameKey)}
                       </Link>
                     </li>
                   );

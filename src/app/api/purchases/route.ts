@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, dbPool } from "@/lib/db";
-import { purchases, purchaseLineItems, suppliers, areas, rooms } from "@/lib/db/schema";
+import { purchases, purchaseLineItems, purchaseLineItemTags, suppliers, areas, rooms } from "@/lib/db/schema";
 import { neonAuth } from "@/lib/auth/server";
 import { eq, desc, and } from "drizzle-orm";
 import { z } from "zod";
@@ -10,16 +10,20 @@ const lineItemSchema = z.object({
   brand: z.string().optional().nullable(),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
+  areaId: z.string().uuid().optional().nullable(),
+  roomId: z.string().uuid().optional().nullable(),
   warrantyMonths: z.number().optional().nullable(),
   notes: z.string().optional().nullable(),
+  tagIds: z.array(z.string().uuid()).optional(),
 });
 
 const purchaseSchema = z.object({
   date: z.string(),
   supplierId: z.string().uuid(),
+  homeId: z.string().uuid().optional().nullable(),
   purchaseType: z.enum(["service", "materials", "products", "indirect"]),
-  roomId: z.string().uuid().optional().nullable(),
-  areaId: z.string().uuid().optional().nullable(),
+  // Changed from enum to string to support user-defined categories
+  expenseCategory: z.string().max(100).optional().nullable(),
   currency: z.string().default("EUR"),
   paymentStatus: z.enum(["pending", "partial", "paid"]).default("pending"),
   paymentDueDate: z.string().optional().nullable(),
@@ -37,7 +41,9 @@ export async function GET(request: Request) {
   const supplierId = searchParams.get("supplierId");
   const roomId = searchParams.get("roomId");
   const areaId = searchParams.get("areaId");
+  const homeId = searchParams.get("homeId");
   const status = searchParams.get("status");
+  const category = searchParams.get("category");
 
   let conditions = [eq(purchases.isDeleted, false)];
 
@@ -50,8 +56,14 @@ export async function GET(request: Request) {
   if (areaId) {
     conditions.push(eq(purchases.areaId, areaId));
   }
+  if (homeId) {
+    conditions.push(eq(purchases.homeId, homeId));
+  }
   if (status) {
     conditions.push(eq(purchases.paymentStatus, status as "pending" | "partial" | "paid"));
+  }
+  if (category) {
+    conditions.push(eq(purchases.expenseCategory, category));
   }
 
   const result = await db
@@ -101,6 +113,19 @@ export async function POST(request: Request) {
       0
     );
 
+    // Determine homeId - either from explicit data or from the first area in line items
+    let homeId = data.homeId;
+    if (!homeId) {
+      // Try to get homeId from area
+      const areaId = data.lineItems.find(item => item.areaId)?.areaId;
+      if (areaId) {
+        const [areaData] = await db.select({ homeId: areas.homeId }).from(areas).where(eq(areas.id, areaId));
+        if (areaData?.homeId) {
+          homeId = areaData.homeId;
+        }
+      }
+    }
+
     // Use transaction to ensure atomicity
     const result = await dbPool.transaction(async (tx) => {
       // Create purchase
@@ -109,9 +134,9 @@ export async function POST(request: Request) {
         .values({
           date: new Date(data.date),
           supplierId: data.supplierId,
+          homeId: homeId,
           purchaseType: data.purchaseType,
-          roomId: data.roomId,
-          areaId: data.areaId,
+          expenseCategory: data.expenseCategory,
           totalAmount: totalAmount.toString(),
           currency: data.currency,
           paymentStatus: data.paymentStatus,
@@ -131,6 +156,8 @@ export async function POST(request: Request) {
             quantity: item.quantity.toString(),
             unitPrice: item.unitPrice.toString(),
             totalPrice: (item.quantity * item.unitPrice).toString(),
+            areaId: item.areaId,
+            roomId: item.roomId,
             warrantyMonths: item.warrantyMonths,
             warrantyExpiresAt: item.warrantyMonths
               ? new Date(
@@ -142,6 +169,20 @@ export async function POST(request: Request) {
           }))
         )
         .returning();
+
+      // Create tag associations for each line item
+      for (let i = 0; i < lineItems.length; i++) {
+        const lineItem = lineItems[i];
+        const tagIds = data.lineItems[i].tagIds || [];
+        if (tagIds.length > 0) {
+          await tx.insert(purchaseLineItemTags).values(
+            tagIds.map((tagId) => ({
+              lineItemId: lineItem.id,
+              tagId,
+            }))
+          );
+        }
+      }
 
       return { purchase, lineItems };
     });

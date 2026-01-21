@@ -7,8 +7,11 @@ import { z } from "zod";
 
 const areaSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  nameLt: z.string().optional().nullable(),
   description: z.string().optional(),
+  descriptionLt: z.string().optional().nullable(),
   budget: z.number().positive().optional().nullable(),
+  homeId: z.string().uuid().optional().nullable(),
 });
 
 export async function GET(
@@ -78,8 +81,11 @@ export async function PUT(
       .update(areas)
       .set({
         name: data.name,
+        nameLt: data.nameLt,
         description: data.description,
+        descriptionLt: data.descriptionLt,
         budget: data.budget?.toString(),
+        homeId: data.homeId,
         updatedAt: new Date(),
       })
       .where(eq(areas.id, id))

@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 
 const roomSchema = z.object({
   areaId: z.string().min(1, "Area is required"),
@@ -45,6 +46,7 @@ interface Area {
 export function AddRoomWithAreaDialog() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -80,8 +82,8 @@ export function AddRoomWithAreaDialog() {
         .catch((err) => {
           console.error("Failed to fetch areas:", err);
           toast({
-            title: "Error",
-            description: "Failed to load areas",
+            title: t("common.error"),
+            description: t("rooms.roomCreateFailed"),
             variant: "destructive",
           });
         })
@@ -89,7 +91,7 @@ export function AddRoomWithAreaDialog() {
           setAreasLoading(false);
         });
     }
-  }, [open, toast]);
+  }, [open, toast, t]);
 
   const onSubmit = async (data: RoomFormData) => {
     setIsLoading(true);
@@ -111,8 +113,8 @@ export function AddRoomWithAreaDialog() {
       }
 
       toast({
-        title: "Success",
-        description: "Room created successfully",
+        title: t("common.success"),
+        description: t("rooms.roomCreated"),
       });
 
       setOpen(false);
@@ -120,8 +122,8 @@ export function AddRoomWithAreaDialog() {
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create room",
+        title: t("common.error"),
+        description: t("rooms.roomCreateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -134,28 +136,28 @@ export function AddRoomWithAreaDialog() {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Add Room
+          {t("rooms.addRoom")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add New Room</DialogTitle>
+            <DialogTitle>{t("rooms.addNewRoom")}</DialogTitle>
             <DialogDescription>
-              Create a new room in one of your areas
+              {t("rooms.createDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="areaId">Area *</Label>
+              <Label htmlFor="areaId">{t("rooms.area")} *</Label>
               {areasLoading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading areas...
+                  {t("rooms.loadingAreas")}
                 </div>
               ) : areas.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No areas available. Please create an area first.
+                  {t("rooms.noAreasAvailable")}
                 </p>
               ) : (
                 <Select
@@ -163,7 +165,7 @@ export function AddRoomWithAreaDialog() {
                   onValueChange={(value) => setValue("areaId", value, { shouldValidate: true })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select an area" />
+                    <SelectValue placeholder={t("rooms.selectArea")} />
                   </SelectTrigger>
                   <SelectContent>
                     {areas.map((area) => (
@@ -175,33 +177,33 @@ export function AddRoomWithAreaDialog() {
                 </Select>
               )}
               {errors.areaId && (
-                <p className="text-sm text-destructive">{errors.areaId.message}</p>
+                <p className="text-sm text-destructive">{t("rooms.areaRequired")}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t("rooms.name")} *</Label>
               <Input
                 id="name"
                 {...register("name")}
-                placeholder="e.g., Master Bedroom, Kitchen"
+                placeholder={t("rooms.namePlaceholder")}
               />
               {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+                <p className="text-sm text-destructive">{t("rooms.nameRequired")}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("rooms.description")}</Label>
               <Textarea
                 id="description"
                 {...register("description")}
-                placeholder="Optional description"
+                placeholder={t("rooms.descriptionPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="budget">Budget (EUR)</Label>
+              <Label htmlFor="budget">{t("rooms.budgetEur")}</Label>
               <Input
                 id="budget"
                 type="number"
@@ -219,11 +221,11 @@ export function AddRoomWithAreaDialog() {
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading || areas.length === 0}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Room
+              {t("rooms.createRoom")}
             </Button>
           </DialogFooter>
         </form>

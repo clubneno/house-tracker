@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
-import { User, Bell, Palette, Save, Loader2 } from "lucide-react";
+import { User, Bell, Palette, Save, Loader2, Tags, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +17,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
+import { CategoriesTable } from "@/components/settings/categories-table";
+import { TagsManager } from "@/components/tags/tags-manager";
 
 export default function SettingsPage() {
   const { data: session } = authClient.useSession();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   // Profile settings
@@ -43,13 +47,13 @@ export default function SettingsPage() {
       // Profile update logic would go here
       await new Promise((resolve) => setTimeout(resolve, 500));
       toast({
-        title: "Profile updated",
-        description: "Your profile has been saved successfully.",
+        title: t("settings.profileUpdated"),
+        description: t("settings.profileSaved"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t("common.error"),
+        description: t("settings.profileUpdateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -63,13 +67,13 @@ export default function SettingsPage() {
       // Preferences update logic would go here
       await new Promise((resolve) => setTimeout(resolve, 500));
       toast({
-        title: "Preferences saved",
-        description: "Your preferences have been updated.",
+        title: t("settings.preferencesSaved"),
+        description: t("settings.preferencesUpdated"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to save preferences. Please try again.",
+        title: t("common.error"),
+        description: t("settings.preferencesFailed"),
         variant: "destructive",
       });
     } finally {
@@ -83,13 +87,13 @@ export default function SettingsPage() {
       // Notifications update logic would go here
       await new Promise((resolve) => setTimeout(resolve, 500));
       toast({
-        title: "Notifications updated",
-        description: "Your notification settings have been saved.",
+        title: t("settings.notificationsUpdated"),
+        description: t("settings.notificationsSaved"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update notifications. Please try again.",
+        title: t("common.error"),
+        description: t("settings.notificationsFailed"),
         variant: "destructive",
       });
     } finally {
@@ -100,9 +104,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t("settings.title")}</h1>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences
+          {t("settings.subtitle")}
         </p>
       </div>
 
@@ -110,38 +114,46 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            Profile
+            {t("settings.profile")}
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
-            Preferences
+            {t("settings.preferences")}
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="flex items-center gap-2">
+            <Tags className="h-4 w-4" />
+            {t("settings.categories")}
+          </TabsTrigger>
+          <TabsTrigger value="tags" className="flex items-center gap-2">
+            <Tag className="h-4 w-4" />
+            {t("settings.tags")}
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
-            Notifications
+            {t("settings.notifications")}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>{t("settings.profileInfo")}</CardTitle>
               <CardDescription>
-                Update your personal information
+                {t("settings.updatePersonalInfo")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("common.name")}</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder={t("settings.yourName")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("common.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -151,19 +163,19 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">{t("settings.newPassword")}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Leave blank to keep current"
+                  placeholder={t("settings.leaveBlankPassword")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-password">{t("settings.confirmNewPassword")}</Label>
                 <Input
                   id="confirm-password"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={t("settings.confirmNewPassword")}
                 />
               </div>
               <Button onClick={handleSaveProfile} disabled={isLoading}>
@@ -172,7 +184,7 @@ export default function SettingsPage() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                Save Profile
+                {t("settings.saveProfile")}
               </Button>
             </CardContent>
           </Card>
@@ -181,17 +193,17 @@ export default function SettingsPage() {
         <TabsContent value="preferences">
           <Card>
             <CardHeader>
-              <CardTitle>Display Preferences</CardTitle>
+              <CardTitle>{t("settings.displayPreferences")}</CardTitle>
               <CardDescription>
-                Customize how information is displayed
+                {t("settings.customizeDisplay")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currency">Default Currency</Label>
+                <Label htmlFor="currency">{t("settings.defaultCurrency")}</Label>
                 <Select value={currency} onValueChange={setCurrency}>
                   <SelectTrigger id="currency">
-                    <SelectValue placeholder="Select currency" />
+                    <SelectValue placeholder={t("settings.selectCurrency")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="EUR">Euro (EUR)</SelectItem>
@@ -203,10 +215,10 @@ export default function SettingsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="date-format">Date Format</Label>
+                <Label htmlFor="date-format">{t("settings.dateFormat")}</Label>
                 <Select value={dateFormat} onValueChange={setDateFormat}>
                   <SelectTrigger id="date-format">
-                    <SelectValue placeholder="Select date format" />
+                    <SelectValue placeholder={t("settings.selectDateFormat")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
@@ -221,8 +233,20 @@ export default function SettingsPage() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                Save Preferences
+                {t("settings.savePreferences")}
               </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="categories">
+          <CategoriesTable />
+        </TabsContent>
+
+        <TabsContent value="tags">
+          <Card>
+            <CardContent className="pt-6">
+              <TagsManager />
             </CardContent>
           </Card>
         </TabsContent>
@@ -230,17 +254,17 @@ export default function SettingsPage() {
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
-              <CardTitle>Notification Settings</CardTitle>
+              <CardTitle>{t("settings.notificationSettings")}</CardTitle>
               <CardDescription>
-                Configure how you receive notifications
+                {t("settings.configureNotifications")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
+                  <Label>{t("settings.emailNotifications")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive email notifications for important updates
+                    {t("settings.emailNotificationsDesc")}
                   </p>
                 </div>
                 <Switch
@@ -250,9 +274,9 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Warranty Reminders</Label>
+                  <Label>{t("settings.warrantyReminders")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when warranties are about to expire
+                    {t("settings.warrantyRemindersDesc")}
                   </p>
                 </div>
                 <Switch
@@ -263,9 +287,9 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Payment Reminders</Label>
+                  <Label>{t("settings.paymentReminders")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Get notified about upcoming payment due dates
+                    {t("settings.paymentRemindersDesc")}
                   </p>
                 </div>
                 <Switch
@@ -276,9 +300,9 @@ export default function SettingsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Budget Alerts</Label>
+                  <Label>{t("settings.budgetAlerts")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Get notified when spending approaches or exceeds budget
+                    {t("settings.budgetAlertsDesc")}
                   </p>
                 </div>
                 <Switch
@@ -293,7 +317,7 @@ export default function SettingsPage() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                Save Notifications
+                {t("settings.saveNotifications")}
               </Button>
             </CardContent>
           </Card>

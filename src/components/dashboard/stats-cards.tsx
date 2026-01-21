@@ -1,6 +1,9 @@
-import { DollarSign, Users, ShoppingCart, Layers, DoorOpen, AlertCircle } from "lucide-react";
+"use client";
+
+import { DollarSign, Users, ShoppingCart, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface StatsCardsProps {
   stats: {
@@ -14,47 +17,49 @@ interface StatsCardsProps {
 }
 
 export function StatsCards({ stats }: StatsCardsProps) {
+  const { t } = useTranslation();
+
   const cards = [
     {
-      title: "Total Spending",
+      titleKey: "dashboard.totalSpending",
       value: formatCurrency(stats.totalSpending),
       icon: DollarSign,
-      description: "Total amount spent",
+      descriptionKey: "dashboard.totalAmountSpent",
     },
     {
-      title: "Pending Payments",
+      titleKey: "dashboard.pendingPayments",
       value: formatCurrency(stats.pendingPayments),
       icon: AlertCircle,
-      description: "Awaiting payment",
+      descriptionKey: "dashboard.awaitingPayment",
       alert: stats.pendingPayments > 0,
     },
     {
-      title: "Purchases",
+      titleKey: "dashboard.purchases",
       value: stats.purchaseCount.toString(),
       icon: ShoppingCart,
-      description: "Total purchases",
+      descriptionKey: "dashboard.totalPurchases",
     },
     {
-      title: "Suppliers",
+      titleKey: "dashboard.suppliers",
       value: stats.supplierCount.toString(),
       icon: Users,
-      description: "Active suppliers",
+      descriptionKey: "dashboard.activeSuppliers",
     },
   ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title}>
+        <Card key={card.titleKey}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t(card.titleKey)}</CardTitle>
             <card.icon className={`h-4 w-4 ${card.alert ? "text-destructive" : "text-muted-foreground"}`} />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${card.alert ? "text-destructive" : ""}`}>
               {card.value}
             </div>
-            <p className="text-xs text-muted-foreground">{card.description}</p>
+            <p className="text-xs text-muted-foreground">{t(card.descriptionKey)}</p>
           </CardContent>
         </Card>
       ))}

@@ -2,16 +2,20 @@ export const dynamic = 'force-dynamic';
 
 import { Suspense } from "react";
 import { db } from "@/lib/db";
-import { purchases, areas, rooms, suppliers, purchaseLineItems } from "@/lib/db/schema";
-import { eq, sum, count, desc, and, gte, isNull, or } from "drizzle-orm";
+import { purchases, areas, rooms, suppliers, purchaseLineItems, attachments, expenseCategories } from "@/lib/db/schema";
+import { eq, sum, count, desc, and, gte, lte, isNull, or, isNotNull } from "drizzle-orm";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { SpendingByAreaChart } from "@/components/dashboard/spending-by-area-chart";
 import { SpendingByTypeChart } from "@/components/dashboard/spending-by-type-chart";
+import { SpendingByCategoryChart } from "@/components/dashboard/spending-by-category-chart";
+import { SpendingByRoomChart } from "@/components/dashboard/spending-by-room-chart";
 import { RecentPurchases } from "@/components/dashboard/recent-purchases";
 import { BudgetProgress } from "@/components/dashboard/budget-progress";
 import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
 import { ExpiringWarranties } from "@/components/dashboard/expiring-warranties";
+import { ExpiringDocuments } from "@/components/dashboard/expiring-documents";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -57,15 +61,18 @@ async function getDashboardStats() {
 }
 
 async function getSpendingByArea() {
+  // Get spending from line items (which have areaId)
   const results = await db
     .select({
       areaId: areas.id,
       areaName: areas.name,
       budget: areas.budget,
-      total: sum(purchases.totalAmount),
+      total: sum(purchaseLineItems.totalPrice),
     })
     .from(areas)
-    .leftJoin(purchases, and(eq(purchases.areaId, areas.id), eq(purchases.isDeleted, false)))
+    .leftJoin(purchaseLineItems, eq(purchaseLineItems.areaId, areas.id))
+    .leftJoin(purchases, eq(purchaseLineItems.purchaseId, purchases.id))
+    .where(or(isNull(purchases.id), eq(purchases.isDeleted, false)))
     .groupBy(areas.id, areas.name, areas.budget);
 
   return results.map((r) => ({
@@ -88,6 +95,60 @@ async function getSpendingByType() {
   return results.map((r) => ({
     name: r.type,
     value: Number(r.total || 0),
+  }));
+}
+
+async function getSpendingByCategory() {
+  // Get all categories with their labels
+  const allCategories = await db
+    .select({
+      name: expenseCategories.name,
+      label: expenseCategories.label,
+    })
+    .from(expenseCategories)
+    .orderBy(expenseCategories.sortOrder);
+
+  // Get spending by category
+  const results = await db
+    .select({
+      category: purchases.expenseCategory,
+      total: sum(purchases.totalAmount),
+    })
+    .from(purchases)
+    .where(and(eq(purchases.isDeleted, false), isNotNull(purchases.expenseCategory)))
+    .groupBy(purchases.expenseCategory);
+
+  // Create a map for quick lookup
+  const categoryLabels = new Map(allCategories.map(c => [c.name, c.label]));
+
+  return results.map((r) => ({
+    name: categoryLabels.get(r.category || "") || r.category || "Other",
+    value: Number(r.total || 0),
+  }));
+}
+
+async function getSpendingByRoom() {
+  // Get spending from line items grouped by room
+  const results = await db
+    .select({
+      roomId: rooms.id,
+      roomName: rooms.name,
+      areaName: areas.name,
+      budget: rooms.budget,
+      total: sum(purchaseLineItems.totalPrice),
+    })
+    .from(rooms)
+    .leftJoin(areas, eq(rooms.areaId, areas.id))
+    .leftJoin(purchaseLineItems, eq(purchaseLineItems.roomId, rooms.id))
+    .leftJoin(purchases, eq(purchaseLineItems.purchaseId, purchases.id))
+    .where(or(isNull(purchases.id), eq(purchases.isDeleted, false)))
+    .groupBy(rooms.id, rooms.name, areas.name, rooms.budget);
+
+  return results.map((r) => ({
+    name: r.roomName,
+    areaName: r.areaName || "",
+    budget: Number(r.budget || 0),
+    spent: Number(r.total || 0),
   }));
 }
 
@@ -191,6 +252,38 @@ async function getExpiringWarranties() {
   }));
 }
 
+async function getExpiringDocuments() {
+  const today = new Date();
+  const ninetyDaysFromNow = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+  const results = await db
+    .select({
+      id: attachments.id,
+      documentTitle: attachments.documentTitle,
+      fileName: attachments.fileName,
+      houseDocumentType: attachments.houseDocumentType,
+      expiresAt: attachments.expiresAt,
+    })
+    .from(attachments)
+    .where(
+      and(
+        isNotNull(attachments.houseDocumentType),
+        isNotNull(attachments.expiresAt),
+        lte(attachments.expiresAt, ninetyDaysFromNow)
+      )
+    )
+    .orderBy(attachments.expiresAt)
+    .limit(5);
+
+  return results.map((r) => ({
+    id: r.id,
+    documentTitle: r.documentTitle,
+    fileName: r.fileName,
+    houseDocumentType: r.houseDocumentType,
+    expiresAt: r.expiresAt,
+  }));
+}
+
 function StatsCardsSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -209,24 +302,22 @@ function StatsCardsSkeleton() {
 }
 
 export default async function DashboardPage() {
-  const [stats, spendingByArea, spendingByType, recentPurchases, upcomingPayments, expiringWarranties] =
+  const [stats, spendingByArea, spendingByType, spendingByCategory, spendingByRoom, recentPurchases, upcomingPayments, expiringWarranties, expiringDocuments] =
     await Promise.all([
       getDashboardStats(),
       getSpendingByArea(),
       getSpendingByType(),
+      getSpendingByCategory(),
+      getSpendingByRoom(),
       getRecentPurchases(),
       getUpcomingPayments(),
       getExpiringWarranties(),
+      getExpiringDocuments(),
     ]);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your house construction finances
-        </p>
-      </div>
+      <DashboardHeader />
 
       <Suspense fallback={<StatsCardsSkeleton />}>
         <StatsCards stats={stats} />
@@ -237,6 +328,11 @@ export default async function DashboardPage() {
         <SpendingByTypeChart data={spendingByType} />
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <SpendingByCategoryChart data={spendingByCategory} />
+        <SpendingByRoomChart data={spendingByRoom} />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <RecentPurchases purchases={recentPurchases} />
@@ -244,6 +340,7 @@ export default async function DashboardPage() {
         <div className="space-y-4">
           <UpcomingPayments payments={upcomingPayments} />
           <ExpiringWarranties warranties={expiringWarranties} />
+          <ExpiringDocuments documents={expiringDocuments} />
         </div>
       </div>
 

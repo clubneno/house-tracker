@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 import {
   UserPlus,
   MoreHorizontal,
@@ -74,6 +75,7 @@ export default function UserManagementPage() {
   const router = useRouter();
   const userRole = useUserRole();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,8 +105,8 @@ export default function UserManagementPage() {
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
-        title: "Error",
-        description: "Failed to fetch users",
+        title: t("common.error"),
+        description: t("users.fetchFailed"),
         variant: "destructive",
       });
     } finally {
@@ -135,8 +137,8 @@ export default function UserManagementPage() {
       }
 
       toast({
-        title: "Success",
-        description: "User added successfully. They can now sign in with their email.",
+        title: t("common.success"),
+        description: t("users.userAdded"),
       });
 
       setIsAddDialogOpen(false);
@@ -146,8 +148,8 @@ export default function UserManagementPage() {
       fetchUsers();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add user",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("users.userAddFailed"),
         variant: "destructive",
       });
     }
@@ -174,8 +176,8 @@ export default function UserManagementPage() {
       }
 
       toast({
-        title: "Success",
-        description: "User updated successfully",
+        title: t("common.success"),
+        description: t("users.userUpdated"),
       });
 
       setIsEditDialogOpen(false);
@@ -183,8 +185,8 @@ export default function UserManagementPage() {
       fetchUsers();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update user",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("users.userUpdateFailed"),
         variant: "destructive",
       });
     }
@@ -205,8 +207,8 @@ export default function UserManagementPage() {
       }
 
       toast({
-        title: "Success",
-        description: "User deleted successfully",
+        title: t("common.success"),
+        description: t("users.userDeleted"),
       });
 
       setIsDeleteDialogOpen(false);
@@ -214,8 +216,8 @@ export default function UserManagementPage() {
       fetchUsers();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete user",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("users.userDeleteFailed"),
         variant: "destructive",
       });
     }
@@ -236,15 +238,15 @@ export default function UserManagementPage() {
       }
 
       toast({
-        title: "Success",
-        description: `User ${user.isActive ? "deactivated" : "activated"} successfully`,
+        title: t("common.success"),
+        description: user.isActive ? t("users.userDeactivated") : t("users.userActivated"),
       });
 
       fetchUsers();
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update user",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("users.userUpdateFailed"),
         variant: "destructive",
       });
     }
@@ -271,29 +273,28 @@ export default function UserManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("users.title")}</h1>
           <p className="text-muted-foreground">
-            Manage user access and permissions
+            {t("users.subtitle")}
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
-              Add User
+              {t("users.addUser")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>{t("users.addNewUser")}</DialogTitle>
               <DialogDescription>
-                Add a new user by their email address. They will be able to sign
-                in once added.
+                {t("users.addUserDescription")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("users.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -303,7 +304,7 @@ export default function UserManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="name">Name (optional)</Label>
+                <Label htmlFor="name">{t("users.nameOptional")}</Label>
                 <Input
                   id="name"
                   placeholder="John Doe"
@@ -312,25 +313,25 @@ export default function UserManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">{t("users.role")}</Label>
                 <Select value={newUserRole} onValueChange={(v) => setNewUserRole(v as "admin" | "editor" | "viewer")}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={t("users.selectRole")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin - Full access</SelectItem>
-                    <SelectItem value="editor">Editor - Can edit data</SelectItem>
-                    <SelectItem value="viewer">Viewer - Read only</SelectItem>
+                    <SelectItem value="admin">{t("users.adminDesc")}</SelectItem>
+                    <SelectItem value="editor">{t("users.editorDesc")}</SelectItem>
+                    <SelectItem value="viewer">{t("users.viewerDesc")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleAddUser} disabled={!newUserEmail}>
-                Add User
+                {t("users.addUser")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -341,11 +342,11 @@ export default function UserManagementPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
+              <TableHead>{t("users.email")}</TableHead>
+              <TableHead>{t("users.name")}</TableHead>
+              <TableHead>{t("users.role")}</TableHead>
+              <TableHead>{t("users.status")}</TableHead>
+              <TableHead>{t("common.joined")}</TableHead>
               <TableHead className="w-[70px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -353,13 +354,13 @@ export default function UserManagementPage() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
-                  Loading...
+                  {t("common.loading")}
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
-                  No users found
+                  {t("common.noUsersFound")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -375,15 +376,15 @@ export default function UserManagementPage() {
                   <TableCell>
                     {isPending(user) ? (
                       <Badge variant="outline" className="text-yellow-600">
-                        Pending
+                        {t("users.pending")}
                       </Badge>
                     ) : user.isActive ? (
                       <Badge variant="outline" className="text-green-600">
-                        Active
+                        {t("users.active")}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-red-600">
-                        Inactive
+                        {t("users.inactive")}
                       </Badge>
                     )}
                   </TableCell>
@@ -398,7 +399,7 @@ export default function UserManagementPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => {
@@ -407,18 +408,18 @@ export default function UserManagementPage() {
                           }}
                         >
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          {t("common.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleToggleStatus(user)}>
                           {user.isActive ? (
                             <>
                               <UserX className="mr-2 h-4 w-4" />
-                              Deactivate
+                              {t("users.deactivate")}
                             </>
                           ) : (
                             <>
                               <UserCheck className="mr-2 h-4 w-4" />
-                              Activate
+                              {t("users.activate")}
                             </>
                           )}
                         </DropdownMenuItem>
@@ -431,7 +432,7 @@ export default function UserManagementPage() {
                           }}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          {t("common.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -447,19 +448,19 @@ export default function UserManagementPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>{t("users.editUser")}</DialogTitle>
             <DialogDescription>
-              Update user details and permissions
+              {t("users.editUserDescription")}
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t("users.email")}</Label>
                 <Input value={selectedUser.email} disabled />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Name</Label>
+                <Label htmlFor="edit-name">{t("users.name")}</Label>
                 <Input
                   id="edit-name"
                   value={selectedUser.name || ""}
@@ -469,7 +470,7 @@ export default function UserManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-role">Role</Label>
+                <Label htmlFor="edit-role">{t("users.role")}</Label>
                 <Select
                   value={selectedUser.role}
                   onValueChange={(v) =>
@@ -477,12 +478,12 @@ export default function UserManagementPage() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={t("users.selectRole")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin - Full access</SelectItem>
-                    <SelectItem value="editor">Editor - Can edit data</SelectItem>
-                    <SelectItem value="viewer">Viewer - Read only</SelectItem>
+                    <SelectItem value="admin">{t("users.adminDesc")}</SelectItem>
+                    <SelectItem value="editor">{t("users.editorDesc")}</SelectItem>
+                    <SelectItem value="viewer">{t("users.viewerDesc")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -490,9 +491,9 @@ export default function UserManagementPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
-            <Button onClick={handleUpdateUser}>Save Changes</Button>
+            <Button onClick={handleUpdateUser}>{t("common.saveChanges")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -501,19 +502,18 @@ export default function UserManagementPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogTitle>{t("users.deleteUser")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this user? This action cannot be
-              undone.
+              {t("users.deleteUserConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

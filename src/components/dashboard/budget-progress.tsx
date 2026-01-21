@@ -1,6 +1,9 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface BudgetProgressProps {
   areas: {
@@ -11,17 +14,18 @@ interface BudgetProgressProps {
 }
 
 export function BudgetProgress({ areas }: BudgetProgressProps) {
+  const { t } = useTranslation();
   const areasWithBudget = areas.filter((a) => a.budget > 0);
 
   if (areasWithBudget.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Budget Progress</CardTitle>
-          <CardDescription>Spending vs budget by area</CardDescription>
+          <CardTitle>{t("dashboard.budgetProgress")}</CardTitle>
+          <CardDescription>{t("dashboard.spendingByAreaDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex h-[200px] items-center justify-center">
-          <p className="text-muted-foreground">No budgets set</p>
+          <p className="text-muted-foreground">{t("common.noData")}</p>
         </CardContent>
       </Card>
     );
@@ -30,8 +34,8 @@ export function BudgetProgress({ areas }: BudgetProgressProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Budget Progress</CardTitle>
-        <CardDescription>Spending vs budget by area</CardDescription>
+        <CardTitle>{t("dashboard.budgetProgress")}</CardTitle>
+        <CardDescription>{t("dashboard.spendingByAreaDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -53,11 +57,11 @@ export function BudgetProgress({ areas }: BudgetProgressProps) {
                   className={isOverBudget ? "[&>div]:bg-destructive" : ""}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{percentage.toFixed(1)}% used</span>
+                  <span>{percentage.toFixed(1)}% {t("dashboard.ofBudget")}</span>
                   <span className={isOverBudget ? "text-destructive" : ""}>
                     {isOverBudget
-                      ? `${formatCurrency(Math.abs(remaining))} over budget`
-                      : `${formatCurrency(remaining)} remaining`}
+                      ? `${formatCurrency(Math.abs(remaining))} ${t("dashboard.overBudget")}`
+                      : `${formatCurrency(remaining)} ${t("dashboard.remaining")}`}
                   </span>
                 </div>
               </div>
