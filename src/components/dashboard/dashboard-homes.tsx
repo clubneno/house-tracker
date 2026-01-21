@@ -103,7 +103,7 @@ export function DashboardHomes({ homes: initialHomes }: DashboardHomesProps) {
           </Button>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex gap-3 overflow-x-auto pt-1 pb-2 -mt-1 -mx-1 px-1">
           {/* All Homes Card */}
           <Card
             className={cn(
