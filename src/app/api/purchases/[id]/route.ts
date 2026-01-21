@@ -20,6 +20,7 @@ const lineItemSchema = z.object({
 const purchaseSchema = z.object({
   date: z.string(),
   supplierId: z.string().uuid(),
+  homeId: z.string().uuid().optional().nullable(),
   purchaseType: z.enum(["service", "materials", "products", "indirect"]),
   // Changed from enum to string to support user-defined categories
   expenseCategory: z.string().max(100).optional().nullable(),
@@ -126,16 +127,19 @@ export async function PUT(
       0
     );
 
-    // Determine homeId from line items' areas (preserve association)
-    let homeId: string | null = null;
-    const areaId = data.lineItems.find(item => item.areaId)?.areaId;
-    if (areaId) {
-      const [areaData] = await db
-        .select({ homeId: areas.homeId })
-        .from(areas)
-        .where(eq(areas.id, areaId));
-      if (areaData?.homeId) {
-        homeId = areaData.homeId;
+    // Determine homeId - either from explicit data or from the first area in line items
+    let homeId = data.homeId;
+    if (!homeId) {
+      // Try to get homeId from area
+      const areaId = data.lineItems.find(item => item.areaId)?.areaId;
+      if (areaId) {
+        const [areaData] = await db
+          .select({ homeId: areas.homeId })
+          .from(areas)
+          .where(eq(areas.id, areaId));
+        if (areaData?.homeId) {
+          homeId = areaData.homeId;
+        }
       }
     }
 
