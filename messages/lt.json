@@ -183,6 +183,8 @@
     "deletePurchase": "Ištrinti pirkimą",
     "recordNewPurchase": "Įrašykite naują pirkimą su eilutėmis",
     "date": "Data",
+    "home": "Namai",
+    "selectHome": "Pasirinkite namus",
     "supplier": "Tiekėjas",
     "amount": "Suma",
     "totalAmount": "Bendra suma",

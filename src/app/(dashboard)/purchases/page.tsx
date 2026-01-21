@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { db } from "@/lib/db";
-import { purchases, suppliers, areas, rooms } from "@/lib/db/schema";
+import { purchases, suppliers, areas, rooms, homes } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { PurchaseFilters } from "@/components/purchases/purchase-filters";
 import { PurchasesHeader } from "@/components/purchases/purchases-header";
@@ -19,11 +19,14 @@ async function getPurchases() {
       supplierType: suppliers.type,
       areaName: areas.name,
       roomName: rooms.name,
+      homeName: homes.name,
+      homeNameLt: homes.nameLt,
     })
     .from(purchases)
     .leftJoin(suppliers, eq(purchases.supplierId, suppliers.id))
     .leftJoin(areas, eq(purchases.areaId, areas.id))
     .leftJoin(rooms, eq(purchases.roomId, rooms.id))
+    .leftJoin(homes, eq(purchases.homeId, homes.id))
     .where(eq(purchases.isDeleted, false))
     .orderBy(desc(purchases.date));
 
@@ -36,6 +39,8 @@ async function getPurchases() {
         : `${r.supplierFirstName} ${r.supplierLastName}`,
     areaName: r.areaName,
     roomName: r.roomName,
+    homeName: r.homeName,
+    homeNameLt: r.homeNameLt,
   }));
 }
 

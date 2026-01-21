@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { purchases, purchaseLineItems, suppliers, areas, rooms } from "@/lib/db/schema";
+import { purchases, purchaseLineItems, suppliers, areas, rooms, homes } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,7 @@ async function getPurchase(id: string) {
 }
 
 async function getFormData() {
-  const [supplierList, areaList, roomList] = await Promise.all([
+  const [supplierList, areaList, roomList, homeList] = await Promise.all([
     db
       .select()
       .from(suppliers)
@@ -55,6 +55,7 @@ async function getFormData() {
       .orderBy(suppliers.companyName, suppliers.firstName),
     db.select().from(areas).orderBy(areas.name),
     db.select().from(rooms).orderBy(rooms.name),
+    db.select().from(homes).where(eq(homes.isDeleted, false)).orderBy(homes.name),
   ]);
 
   return {
@@ -71,6 +72,10 @@ async function getFormData() {
       id: r.id,
       name: r.name,
       areaId: r.areaId,
+    })),
+    homes: homeList.map((h) => ({
+      id: h.id,
+      name: h.name,
     })),
   };
 }
@@ -108,6 +113,7 @@ export default async function EditPurchasePage({
         suppliers={formData.suppliers}
         areas={formData.areas}
         rooms={formData.rooms}
+        homes={formData.homes}
         purchase={purchase}
       />
     </div>

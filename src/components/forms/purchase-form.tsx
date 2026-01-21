@@ -64,6 +64,7 @@ interface PurchaseFormProps {
   suppliers: { id: string; name: string; type: string }[];
   areas: { id: string; name: string }[];
   rooms: { id: string; name: string; areaId: string }[];
+  homes: { id: string; name: string }[];
   defaultSupplierId?: string;
   defaultRoomId?: string;
   purchase?: any;
@@ -73,6 +74,7 @@ export function PurchaseForm({
   suppliers,
   areas,
   rooms,
+  homes,
   defaultSupplierId,
   defaultRoomId,
   purchase,
@@ -82,6 +84,9 @@ export function PurchaseForm({
   const { t } = useTranslation();
   const { selectedHomeId } = useHome();
   const [isLoading, setIsLoading] = useState(false);
+  const [formHomeId, setFormHomeId] = useState<string | null>(
+    purchase?.homeId || selectedHomeId || null
+  );
   const [categories, setCategories] = useState<ExpenseCategoryRecord[]>([]);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
@@ -300,7 +305,7 @@ export function PurchaseForm({
         body: JSON.stringify({
           date: data.date,
           supplierId: data.supplierId,
-          homeId: selectedHomeId || null,
+          homeId: formHomeId || null,
           purchaseType: data.purchaseType,
           expenseCategory: data.expenseCategory || null,
           paymentStatus: data.paymentStatus,
@@ -358,13 +363,33 @@ export function PurchaseForm({
           <CardTitle>{t("purchases.purchaseDetails")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="purchase-date">{t("purchases.date")} *</Label>
               <Input id="purchase-date" type="date" {...register("date")} />
               {errors.date && (
                 <p className="text-sm text-destructive">{errors.date.message}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="purchase-home">{t("purchases.home")}</Label>
+              <Select
+                value={formHomeId || "__none__"}
+                onValueChange={(value) => setFormHomeId(value === "__none__" ? null : value)}
+              >
+                <SelectTrigger id="purchase-home">
+                  <SelectValue placeholder={t("purchases.selectHome")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{t("common.none")}</SelectItem>
+                  {homes.map((home) => (
+                    <SelectItem key={home.id} value={home.id}>
+                      {home.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

@@ -183,6 +183,8 @@
     "deletePurchase": "Delete Purchase",
     "recordNewPurchase": "Record a new purchase with line items",
     "date": "Date",
+    "home": "Home",
+    "selectHome": "Select home",
     "supplier": "Supplier",
     "amount": "Amount",
     "totalAmount": "Total Amount",

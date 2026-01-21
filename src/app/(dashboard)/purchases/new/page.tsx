@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic';
 
 import { db } from "@/lib/db";
-import { suppliers, areas, rooms } from "@/lib/db/schema";
+import { suppliers, areas, rooms, homes } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { PurchaseForm } from "@/components/forms/purchase-form";
 import { NewPurchaseHeader } from "@/components/purchases/new-purchase-header";
 
 async function getFormData() {
-  const [supplierList, areaList, roomList] = await Promise.all([
+  const [supplierList, areaList, roomList, homeList] = await Promise.all([
     db
       .select()
       .from(suppliers)
@@ -15,6 +15,7 @@ async function getFormData() {
       .orderBy(suppliers.companyName, suppliers.firstName),
     db.select().from(areas).orderBy(areas.name),
     db.select().from(rooms).orderBy(rooms.name),
+    db.select().from(homes).where(eq(homes.isDeleted, false)).orderBy(homes.name),
   ]);
 
   return {
@@ -32,6 +33,10 @@ async function getFormData() {
       name: r.name,
       areaId: r.areaId,
     })),
+    homes: homeList.map((h) => ({
+      id: h.id,
+      name: h.name,
+    })),
   };
 }
 
@@ -40,7 +45,7 @@ export default async function NewPurchasePage({
 }: {
   searchParams: Promise<{ supplier?: string; room?: string }>;
 }) {
-  const { suppliers, areas, rooms } = await getFormData();
+  const { suppliers, areas, rooms, homes } = await getFormData();
   const params = await searchParams;
 
   return (
@@ -51,6 +56,7 @@ export default async function NewPurchasePage({
         suppliers={suppliers}
         areas={areas}
         rooms={rooms}
+        homes={homes}
         defaultSupplierId={params.supplier}
         defaultRoomId={params.room}
       />

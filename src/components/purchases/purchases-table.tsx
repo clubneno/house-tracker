@@ -25,6 +25,8 @@ interface Purchase {
   supplierName: string | null;
   areaName: string | null;
   roomName: string | null;
+  homeName: string | null;
+  homeNameLt: string | null;
 }
 
 interface PurchasesTableProps {
@@ -38,7 +40,7 @@ const statusVariants: Record<string, "default" | "secondary" | "success" | "warn
 };
 
 export function PurchasesTable({ purchases }: PurchasesTableProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const typeLabels: Record<string, string> = {
     service: t("purchases.service"),
@@ -53,6 +55,13 @@ export function PurchasesTable({ purchases }: PurchasesTableProps) {
     paid: t("purchases.paid"),
   };
 
+  const getHomeName = (purchase: Purchase) => {
+    if (locale === 'lt' && purchase.homeNameLt) {
+      return purchase.homeNameLt;
+    }
+    return purchase.homeName;
+  };
+
   return (
     <Card>
       <div className="overflow-x-auto">
@@ -60,6 +69,7 @@ export function PurchasesTable({ purchases }: PurchasesTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>{t("purchases.date")}</TableHead>
+              <TableHead>{t("purchases.home")}</TableHead>
               <TableHead>{t("purchases.supplier")}</TableHead>
               <TableHead>{t("common.type")}</TableHead>
               <TableHead>{t("purchases.category")}</TableHead>
@@ -78,6 +88,13 @@ export function PurchasesTable({ purchases }: PurchasesTableProps) {
                   >
                     {formatDate(purchase.date)}
                   </Link>
+                </TableCell>
+                <TableCell>
+                  {getHomeName(purchase) ? (
+                    <span className="text-sm">{getHomeName(purchase)}</span>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
                 </TableCell>
                 <TableCell>{purchase.supplierName}</TableCell>
                 <TableCell>
