@@ -3,11 +3,11 @@ export const dynamic = 'force-dynamic';
 import { db } from "@/lib/db";
 import { purchases, suppliers, areas, rooms, homes } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { PurchaseFilters } from "@/components/purchases/purchase-filters";
-import { PurchasesHeader } from "@/components/purchases/purchases-header";
-import { PendingPaymentsAlert } from "@/components/purchases/pending-payments-alert";
-import { NoPurchases } from "@/components/purchases/no-purchases";
-import { PurchasesTable } from "@/components/purchases/purchases-table";
+import { PurchasesPageClient } from "@/components/purchases/purchases-page-client";
+
+interface PageProps {
+  searchParams: Promise<{ status?: string; category?: string }>;
+}
 
 async function getPurchases() {
   const result = await db
@@ -44,25 +44,15 @@ async function getPurchases() {
   }));
 }
 
-export default async function PurchasesPage() {
+export default async function PurchasesPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const purchaseList = await getPurchases();
 
-  const totalSpending = purchaseList.reduce((sum, p) => sum + p.totalAmount, 0);
-  const pendingCount = purchaseList.filter((p) => p.paymentStatus === "pending").length;
-
   return (
-    <div className="space-y-6">
-      <PurchasesHeader purchaseCount={purchaseList.length} totalSpending={totalSpending} />
-
-      <PendingPaymentsAlert pendingCount={pendingCount} />
-
-      <PurchaseFilters />
-
-      {purchaseList.length === 0 ? (
-        <NoPurchases />
-      ) : (
-        <PurchasesTable purchases={purchaseList} />
-      )}
-    </div>
+    <PurchasesPageClient
+      purchases={purchaseList}
+      statusFilter={params.status}
+      categoryFilter={params.category}
+    />
   );
 }
