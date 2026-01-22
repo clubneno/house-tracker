@@ -45,7 +45,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 glass px-4 sm:gap-x-6 sm:px-6 lg:px-8">
       <Button
         variant="ghost"
         size="icon"
@@ -56,7 +56,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <span className="sr-only">Open sidebar</span>
       </Button>
 
-      <div className="h-6 w-px bg-border lg:hidden" />
+      <div className="h-6 w-px bg-border/50 lg:hidden" />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1" />
@@ -68,13 +68,15 @@ export function Header({ onMenuClick }: HeaderProps) {
             <span className="sr-only">View notifications</span>
           </Button>
 
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-border" />
+          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-border/50" />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full glass-subtle">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>{userInitials}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                    {userInitials}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

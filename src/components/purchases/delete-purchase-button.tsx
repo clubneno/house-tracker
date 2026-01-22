@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 
 interface DeletePurchaseButtonProps {
   id: string;
@@ -24,6 +25,7 @@ interface DeletePurchaseButtonProps {
 export function DeletePurchaseButton({ id }: DeletePurchaseButtonProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -38,16 +40,16 @@ export function DeletePurchaseButton({ id }: DeletePurchaseButtonProps) {
       }
 
       toast({
-        title: "Success",
-        description: "Purchase deleted successfully",
+        title: t("common.success"),
+        description: t("purchases.deleteSuccess"),
       });
 
       router.push("/purchases");
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete purchase",
+        title: t("common.error"),
+        description: t("purchases.deleteFailed"),
         variant: "destructive",
       });
     } finally {
@@ -60,21 +62,21 @@ export function DeletePurchaseButton({ id }: DeletePurchaseButtonProps) {
       <AlertDialogTrigger asChild>
         <Button variant="destructive">
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete
+          {t("common.delete")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
+          <AlertDialogTitle>{t("purchases.deletePurchase")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this purchase? This action cannot be undone.
+            {t("purchases.deleteConfirm")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Delete
+            {t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

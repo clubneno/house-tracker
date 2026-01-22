@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -13,7 +14,6 @@ import {
   FolderOpen,
   Shield,
   Settings,
-  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/auth/utils";
@@ -54,10 +54,16 @@ export function Sidebar({ userRole = "viewer" }: SidebarProps) {
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r bg-card px-6 pb-4">
-        <div className="flex h-16 shrink-0 items-center gap-2">
-          <Building2 className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">House Tracker</span>
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto glass-elevated px-6 pb-4">
+        <div className="flex shrink-0 items-center py-2">
+          <Image
+            src="/neno-logo.png"
+            alt="NENO Real Estate"
+            width={500}
+            height={100}
+            className="max-w-[180px] h-auto object-contain"
+            priority
+          />
         </div>
         <div className="-mx-4">
           <HomeSelector />
@@ -75,13 +81,16 @@ export function Sidebar({ userRole = "viewer" }: SidebarProps) {
                       <Link
                         href={item.href}
                         className={cn(
+                          "group flex gap-x-3 rounded-glass p-2.5 text-sm font-medium leading-6 transition-all duration-200 ease-smooth",
                           isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                          "group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6"
+                            ? "glass bg-primary/10 text-primary shadow-glass-sm"
+                            : "text-muted-foreground hover:glass-subtle hover:text-foreground"
                         )}
                       >
-                        <item.icon className="h-5 w-5 shrink-0" />
+                        <item.icon className={cn(
+                          "h-5 w-5 shrink-0 transition-colors duration-200",
+                          isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                        )} />
                         {t(item.nameKey)}
                       </Link>
                     </li>

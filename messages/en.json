@@ -172,7 +172,15 @@
     "validEmail": "Please enter a valid email",
     "supplierCreated": "Supplier created successfully",
     "supplierUpdated": "Supplier updated successfully",
-    "saveFailed": "Failed to save supplier"
+    "saveFailed": "Failed to save supplier",
+    "contactInformation": "Contact Information",
+    "purchaseHistory": "Purchase History",
+    "statistics": "Statistics",
+    "totalPurchases": "Total Purchases",
+    "memberSince": "Member Since",
+    "quickActions": "Quick Actions",
+    "sendEmail": "Send Email",
+    "call": "Call"
   },
   "purchases": {
     "title": "Purchases",
@@ -182,6 +190,7 @@
     "editPurchase": "Edit Purchase",
     "deletePurchase": "Delete Purchase",
     "recordNewPurchase": "Record a new purchase with line items",
+    "purchaseFrom": "Purchase from",
     "date": "Date",
     "home": "Home",
     "selectHome": "Select home",
@@ -202,15 +211,21 @@
     "category": "Category",
     "attachments": "Attachments",
     "lineItems": "Line Items",
+    "items": "items",
     "description": "Description",
     "quantity": "Quantity",
+    "qty": "Qty",
     "unitPrice": "Unit Price",
     "unitPriceEur": "Unit Price (EUR)",
     "area": "Area",
     "room": "Room",
     "location": "Location",
     "paymentDueDate": "Payment Due Date",
+    "paymentDue": "Payment Due",
     "notes": "Notes",
+    "details": "Details",
+    "monthWarranty": "month warranty",
+    "months": "months",
     "pendingPayment": "pending payment",
     "pendingPayments": "pending payments",
     "youHave": "You have",
@@ -222,7 +237,7 @@
     "selectSupplier": "Select supplier",
     "selectCategory": "Select category",
     "addItem": "Add Item",
-    "item": "Item",
+    "item": "item",
     "brand": "Brand",
     "itemDescription": "Item description",
     "brandName": "Brand name",
@@ -247,7 +262,10 @@
     "createPurchase": "Create Purchase",
     "purchaseCreated": "Purchase created successfully",
     "purchaseUpdated": "Purchase updated successfully",
-    "purchaseSaveFailed": "Failed to save purchase"
+    "purchaseSaveFailed": "Failed to save purchase",
+    "deleteConfirm": "Are you sure you want to delete this purchase? This action cannot be undone.",
+    "deleteSuccess": "Purchase deleted successfully",
+    "deleteFailed": "Failed to delete purchase"
   },
   "homes": {
     "title": "Homes",
@@ -331,7 +349,11 @@
     "areaUpdated": "Area updated successfully",
     "areaUpdateFailed": "Failed to update area",
     "home": "Home",
-    "selectHome": "Select home"
+    "selectHome": "Select home",
+    "inThisArea": "in this area",
+    "used": "used",
+    "noBudgetSet": "No budget set",
+    "noRoomsInArea": "No rooms in this area yet"
   },
   "rooms": {
     "title": "Rooms",
@@ -366,7 +388,8 @@
     "roomCreated": "Room created successfully",
     "roomCreateFailed": "Failed to create room",
     "roomUpdated": "Room updated successfully",
-    "roomUpdateFailed": "Failed to update room"
+    "roomUpdateFailed": "Failed to update room",
+    "forThisRoom": "for this room"
   },
   "documents": {
     "title": "Documents",
@@ -554,6 +577,29 @@
     "notificationsUpdated": "Notifications updated",
     "notificationsSaved": "Your notification settings have been saved.",
     "notificationsFailed": "Failed to update notifications. Please try again."
+  },
+  "attachments": {
+    "uploading": "Uploading...",
+    "dropHere": "Drop the file here",
+    "dragDrop": "Drag & drop files here",
+    "clickBrowse": "or click to browse",
+    "supportedFormats": "Images, PDFs, and documents",
+    "uploadSuccess": "Attachment uploaded successfully",
+    "uploadFailed": "Failed to upload attachment",
+    "deleteSuccess": "Attachment deleted successfully",
+    "deleteFailed": "Failed to delete attachment",
+    "editAttachment": "Edit Attachment",
+    "fileName": "File Name",
+    "enterFileName": "Enter file name",
+    "fileNameRequired": "File name is required",
+    "updateSuccess": "Attachment updated successfully",
+    "updateFailed": "Failed to update attachment",
+    "types": {
+      "invoice": "Invoice",
+      "receipt": "Receipt",
+      "photo": "Photo",
+      "document": "Document"
+    }
   },
   "users": {
     "title": "User Management",

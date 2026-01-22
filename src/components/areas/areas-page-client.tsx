@@ -20,6 +20,7 @@ interface AreasPageClientProps {
     roomCount: number;
     totalSpending: number;
     homeName?: string | null;
+    homeNameLt?: string | null;
   })[];
 }
 

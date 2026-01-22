@@ -172,7 +172,15 @@
     "validEmail": "Įveskite teisingą el. pašto adresą",
     "supplierCreated": "Tiekėjas sėkmingai sukurtas",
     "supplierUpdated": "Tiekėjas sėkmingai atnaujintas",
-    "saveFailed": "Nepavyko išsaugoti tiekėjo"
+    "saveFailed": "Nepavyko išsaugoti tiekėjo",
+    "contactInformation": "Kontaktinė informacija",
+    "purchaseHistory": "Pirkimų istorija",
+    "statistics": "Statistika",
+    "totalPurchases": "Iš viso pirkimų",
+    "memberSince": "Narys nuo",
+    "quickActions": "Greiti veiksmai",
+    "sendEmail": "Siųsti el. laišką",
+    "call": "Skambinti"
   },
   "purchases": {
     "title": "Pirkimai",
@@ -182,6 +190,7 @@
     "editPurchase": "Redaguoti pirkimą",
     "deletePurchase": "Ištrinti pirkimą",
     "recordNewPurchase": "Įrašykite naują pirkimą su eilutėmis",
+    "purchaseFrom": "Pirkimas iš",
     "date": "Data",
     "home": "Namai",
     "selectHome": "Pasirinkite namus",
@@ -202,15 +211,21 @@
     "category": "Kategorija",
     "attachments": "Priedai",
     "lineItems": "Eilutės",
+    "items": "eilutės",
     "description": "Aprašymas",
     "quantity": "Kiekis",
+    "qty": "Kiekis",
     "unitPrice": "Vieneto kaina",
     "unitPriceEur": "Vieneto kaina (EUR)",
     "area": "Zona",
     "room": "Kambarys",
     "location": "Vieta",
     "paymentDueDate": "Mokėjimo terminas",
+    "paymentDue": "Mokėjimo terminas",
     "notes": "Pastabos",
+    "details": "Detalės",
+    "monthWarranty": "mėn. garantija",
+    "months": "mėn.",
     "pendingPayment": "laukiantis mokėjimas",
     "pendingPayments": "laukiantys mokėjimai",
     "youHave": "Turite",
@@ -222,7 +237,7 @@
     "selectSupplier": "Pasirinkite tiekėją",
     "selectCategory": "Pasirinkite kategoriją",
     "addItem": "Pridėti eilutę",
-    "item": "Eilutė",
+    "item": "eilutė",
     "brand": "Prekės ženklas",
     "itemDescription": "Eilutės aprašymas",
     "brandName": "Prekės ženklo pavadinimas",
@@ -247,7 +262,10 @@
     "createPurchase": "Sukurti pirkimą",
     "purchaseCreated": "Pirkimas sėkmingai sukurtas",
     "purchaseUpdated": "Pirkimas sėkmingai atnaujintas",
-    "purchaseSaveFailed": "Nepavyko išsaugoti pirkimo"
+    "purchaseSaveFailed": "Nepavyko išsaugoti pirkimo",
+    "deleteConfirm": "Ar tikrai norite ištrinti šį pirkimą? Šio veiksmo negalima atšaukti.",
+    "deleteSuccess": "Pirkimas sėkmingai ištrintas",
+    "deleteFailed": "Nepavyko ištrinti pirkimo"
   },
   "homes": {
     "title": "Namai",
@@ -331,7 +349,11 @@
     "areaUpdated": "Zona sėkmingai atnaujinta",
     "areaUpdateFailed": "Nepavyko atnaujinti zonos",
     "home": "Namai",
-    "selectHome": "Pasirinkite namus"
+    "selectHome": "Pasirinkite namus",
+    "inThisArea": "šioje zonoje",
+    "used": "panaudota",
+    "noBudgetSet": "Biudžetas nenustatytas",
+    "noRoomsInArea": "Šioje zonoje kambarių dar nėra"
   },
   "rooms": {
     "title": "Kambariai",
@@ -366,7 +388,8 @@
     "roomCreated": "Kambarys sėkmingai sukurtas",
     "roomCreateFailed": "Nepavyko sukurti kambario",
     "roomUpdated": "Kambarys sėkmingai atnaujintas",
-    "roomUpdateFailed": "Nepavyko atnaujinti kambario"
+    "roomUpdateFailed": "Nepavyko atnaujinti kambario",
+    "forThisRoom": "šiam kambariui"
   },
   "documents": {
     "title": "Dokumentai",
@@ -554,6 +577,29 @@
     "notificationsUpdated": "Pranešimai atnaujinti",
     "notificationsSaved": "Jūsų pranešimų nustatymai išsaugoti.",
     "notificationsFailed": "Nepavyko atnaujinti pranešimų. Bandykite dar kartą."
+  },
+  "attachments": {
+    "uploading": "Įkeliama...",
+    "dropHere": "Numeskite failą čia",
+    "dragDrop": "Vilkite ir numeskite failus čia",
+    "clickBrowse": "arba spustelėkite naršyti",
+    "supportedFormats": "Paveikslėliai, PDF ir dokumentai",
+    "uploadSuccess": "Priedas sėkmingai įkeltas",
+    "uploadFailed": "Nepavyko įkelti priedo",
+    "deleteSuccess": "Priedas sėkmingai ištrintas",
+    "deleteFailed": "Nepavyko ištrinti priedo",
+    "editAttachment": "Redaguoti priedą",
+    "fileName": "Failo pavadinimas",
+    "enterFileName": "Įveskite failo pavadinimą",
+    "fileNameRequired": "Failo pavadinimas privalomas",
+    "updateSuccess": "Priedas sėkmingai atnaujintas",
+    "updateFailed": "Nepavyko atnaujinti priedo",
+    "types": {
+      "invoice": "Sąskaita faktūra",
+      "receipt": "Kvitas",
+      "photo": "Nuotrauka",
+      "document": "Dokumentas"
+    }
   },
   "users": {
     "title": "Vartotojų valdymas",

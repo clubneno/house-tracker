@@ -25,7 +25,7 @@ const statusVariants: Record<string, "default" | "secondary" | "success" | "warn
 };
 
 export function RecentPurchases({ purchases }: RecentPurchasesProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const typeLabels: Record<string, string> = {
     service: t("purchaseTypes.service"),
@@ -83,7 +83,7 @@ export function RecentPurchases({ purchases }: RecentPurchasesProps) {
                   {purchase.supplierName || "Unknown Supplier"}
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{formatDate(purchase.date)}</span>
+                  <span>{formatDate(purchase.date, locale)}</span>
                   <Badge variant="outline">{typeLabels[purchase.purchaseType]}</Badge>
                 </div>
               </div>

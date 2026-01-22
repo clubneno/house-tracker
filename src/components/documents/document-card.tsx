@@ -48,7 +48,7 @@ interface DocumentCardProps {
 }
 
 export function DocumentCard({ document }: DocumentCardProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const isExpiringSoon = document.expiresAt
     ? new Date(document.expiresAt) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     : false;
@@ -86,7 +86,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {t("documents.added")} {formatDate(document.createdAt)}
+            {t("documents.added")} {formatDate(document.createdAt, locale)}
           </span>
           <span>{formatFileSize(document.fileSizeBytes)}</span>
         </div>
@@ -101,7 +101,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
             }`}
           >
             <Clock className="h-3 w-3" />
-            {isExpired ? t("common.expired") : t("common.expires")} {formatDate(document.expiresAt)}
+            {isExpired ? t("common.expired") : t("common.expires")} {formatDate(document.expiresAt, locale)}
           </div>
         )}
       </CardContent>

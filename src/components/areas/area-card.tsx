@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Layers, DoorOpen } from "lucide-react";
+import { Layers, DoorOpen, Home } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/utils";
@@ -11,36 +11,50 @@ interface AreaCardProps {
   area: {
     id: string;
     name: string;
+    nameLt?: string | null;
     description: string | null;
+    descriptionLt?: string | null;
     budget: string | number | null;
     roomCount: number;
     totalSpending: number;
+    homeName?: string | null;
+    homeNameLt?: string | null;
   };
 }
 
 export function AreaCard({ area }: AreaCardProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const budget = Number(area.budget || 0);
   const percentage = budget > 0 ? (area.totalSpending / budget) * 100 : 0;
   const isOverBudget = area.totalSpending > budget && budget > 0;
 
+  const displayName = locale === 'lt' && area.nameLt ? area.nameLt : area.name;
+  const displayDescription = locale === 'lt' && area.descriptionLt ? area.descriptionLt : area.description;
+  const displayHomeName = locale === 'lt' && area.homeNameLt ? area.homeNameLt : area.homeName;
+
   return (
     <Link href={`/areas/${area.id}`}>
       <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <Layers className="h-5 w-5 text-primary" />
-              {area.name}
+              {displayName}
             </CardTitle>
           </div>
-          {area.description && (
+          {displayDescription && (
             <p className="text-sm text-muted-foreground line-clamp-2">
-              {area.description}
+              {displayDescription}
             </p>
           )}
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
+          {displayHomeName && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Home className="h-3.5 w-3.5" />
+              <span>{displayHomeName}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <DoorOpen className="h-4 w-4" />
             <span>

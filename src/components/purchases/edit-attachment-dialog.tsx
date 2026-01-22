@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 import type { Attachment } from "@/lib/db/schema";
 
 interface EditAttachmentDialogProps {
@@ -27,18 +28,14 @@ interface EditAttachmentDialogProps {
   onSuccess: (updated: Attachment) => void;
 }
 
-const fileTypes = [
-  { value: "invoice", label: "Invoice" },
-  { value: "receipt", label: "Receipt" },
-  { value: "photo", label: "Photo" },
-  { value: "document", label: "Document" },
-];
+const fileTypeKeys = ["invoice", "receipt", "photo", "document"] as const;
 
 export function EditAttachmentDialog({
   attachment,
   onSuccess,
 }: EditAttachmentDialogProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileName, setFileName] = useState(attachment.fileName);
@@ -49,8 +46,8 @@ export function EditAttachmentDialog({
 
     if (!fileName.trim()) {
       toast({
-        title: "Error",
-        description: "File name is required",
+        title: t("common.error"),
+        description: t("attachments.fileNameRequired"),
         variant: "destructive",
       });
       return;
@@ -71,15 +68,15 @@ export function EditAttachmentDialog({
 
       const updated = await response.json();
       toast({
-        title: "Success",
-        description: "Attachment updated successfully",
+        title: t("common.success"),
+        description: t("attachments.updateSuccess"),
       });
       onSuccess(updated);
       setOpen(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update attachment",
+        title: t("common.error"),
+        description: t("attachments.updateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -96,28 +93,28 @@ export function EditAttachmentDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Attachment</DialogTitle>
+          <DialogTitle>{t("attachments.editAttachment")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fileName">File Name</Label>
+            <Label htmlFor="fileName">{t("attachments.fileName")}</Label>
             <Input
               id="fileName"
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
-              placeholder="Enter file name"
+              placeholder={t("attachments.enterFileName")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="fileType">Type</Label>
+            <Label htmlFor="fileType">{t("common.type")}</Label>
             <Select value={fileType} onValueChange={(v) => setFileType(v as typeof fileType)}>
               <SelectTrigger id="fileType">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {fileTypes.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                {fileTypeKeys.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {t(`attachments.types.${type}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -130,11 +127,11 @@ export function EditAttachmentDialog({
               onClick={() => setOpen(false)}
               disabled={isSubmitting}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
+              {t("common.saveChanges")}
             </Button>
           </div>
         </form>

@@ -9,6 +9,7 @@ import type { Attachment } from "@/lib/db/schema";
 import { DeleteAttachmentButton } from "./delete-attachment-button";
 import { EditAttachmentDialog } from "./edit-attachment-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n/client";
 import imageCompression from "browser-image-compression";
 
 interface PurchaseAttachmentsProps {
@@ -36,6 +37,7 @@ export function PurchaseAttachments({
   onAttachmentsChange,
 }: PurchaseAttachmentsProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [attachments, setAttachments] = useState(initialAttachments);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -82,14 +84,14 @@ export function PurchaseAttachments({
       const attachment = await response.json();
       setAttachments((prev) => [...prev, attachment]);
       toast({
-        title: "Success",
-        description: "Attachment uploaded successfully",
+        title: t("common.success"),
+        description: t("attachments.uploadSuccess"),
       });
       onAttachmentsChange?.();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to upload attachment",
+        title: t("common.error"),
+        description: t("attachments.uploadFailed"),
         variant: "destructive",
       });
     } finally {
@@ -127,14 +129,14 @@ export function PurchaseAttachments({
 
       setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
       toast({
-        title: "Success",
-        description: "Attachment deleted successfully",
+        title: t("common.success"),
+        description: t("attachments.deleteSuccess"),
       });
       onAttachmentsChange?.();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete attachment",
+        title: t("common.error"),
+        description: t("attachments.deleteFailed"),
         variant: "destructive",
       });
     }
@@ -152,7 +154,7 @@ export function PurchaseAttachments({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Attachments
+          {t("purchases.attachments")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -185,7 +187,7 @@ export function PurchaseAttachments({
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{attachment.fileName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {attachment.fileType} &middot; {formatFileSize(attachment.fileSizeBytes)}
+                      {t(`attachments.types.${attachment.fileType}`)} &middot; {formatFileSize(attachment.fileSizeBytes)}
                     </p>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -225,22 +227,22 @@ export function PurchaseAttachments({
           {isUploading ? (
             <div className="flex flex-col items-center">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Uploading...</p>
+              <p className="text-sm text-muted-foreground">{t("attachments.uploading")}</p>
             </div>
           ) : isDragActive ? (
             <div className="flex flex-col items-center">
               <Upload className="h-8 w-8 text-primary mb-2" />
-              <p className="font-medium">Drop the file here</p>
+              <p className="font-medium">{t("attachments.dropHere")}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center">
               <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="font-medium">Drag & drop files here</p>
+              <p className="font-medium">{t("attachments.dragDrop")}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                or click to browse
+                {t("attachments.clickBrowse")}
               </p>
               <p className="text-xs text-muted-foreground mt-2">
-                Images, PDFs, and documents
+                {t("attachments.supportedFormats")}
               </p>
             </div>
           )}

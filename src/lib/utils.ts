@@ -12,9 +12,13 @@ export function formatCurrency(amount: number, currency: string = "EUR"): string
   }).format(amount);
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string, locale: string = "en"): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("en-GB", {
+  const localeMap: Record<string, string> = {
+    en: "en-GB",
+    lt: "lt-LT",
+  };
+  return new Intl.DateTimeFormat(localeMap[locale] || "en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",

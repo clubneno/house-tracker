@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { X, Home, Users, UsersRound, ShoppingCart, Layers, DoorOpen, FileText, FolderOpen, Shield, Settings, Building2 } from "lucide-react";
+import { X, Home, Users, UsersRound, ShoppingCart, Layers, DoorOpen, FileText, FolderOpen, Shield, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useUserRole } from "./dashboard-layout";
@@ -46,21 +47,26 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
 
   return (
     <div className="relative z-50 lg:hidden" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/80" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       <div className="fixed inset-0 flex">
         <div className="relative mr-16 flex w-full max-w-xs flex-1">
           <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-6 w-6 text-white" />
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:glass-subtle">
+              <X className="h-6 w-6" />
               <span className="sr-only">Close sidebar</span>
             </Button>
           </div>
 
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background px-6 pb-4">
-            <div className="flex h-16 shrink-0 items-center gap-2">
-              <Building2 className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">House Tracker</span>
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto glass-elevated px-6 pb-4">
+            <div className="flex shrink-0 items-center py-2">
+              <Image
+                src="/neno-logo.png"
+                alt="NENO Real Estate"
+                width={500}
+                height={100}
+                className="max-w-[180px] h-auto object-contain"
+              />
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -76,13 +82,16 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                             href={item.href}
                             onClick={onClose}
                             className={cn(
+                              "group flex gap-x-3 rounded-glass p-2.5 text-sm font-medium leading-6 transition-all duration-200 ease-smooth",
                               isActive
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                              "group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6"
+                                ? "glass bg-primary/10 text-primary shadow-glass-sm"
+                                : "text-muted-foreground hover:glass-subtle hover:text-foreground"
                             )}
                           >
-                            <item.icon className="h-5 w-5 shrink-0" />
+                            <item.icon className={cn(
+                              "h-5 w-5 shrink-0 transition-colors duration-200",
+                              isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                            )} />
                             {t(item.nameKey)}
                           </Link>
                         </li>

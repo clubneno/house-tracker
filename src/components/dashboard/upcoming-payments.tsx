@@ -16,7 +16,7 @@ interface UpcomingPaymentsProps {
 }
 
 export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   if (payments.length === 0) {
     return (
@@ -49,7 +49,7 @@ export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
               <div>
                 <div className="font-medium">{payment.supplierName}</div>
                 <div className="text-muted-foreground text-xs">
-                  {payment.paymentDueDate ? formatDate(payment.paymentDueDate) : "N/A"}
+                  {payment.paymentDueDate ? formatDate(payment.paymentDueDate, locale) : "N/A"}
                 </div>
               </div>
               <div className="font-medium">{formatCurrency(payment.totalAmount)}</div>

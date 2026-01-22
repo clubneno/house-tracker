@@ -11,11 +11,23 @@ interface SpendingByTypeChartProps {
   }[];
 }
 
+// Apple liquid glass tooltip style
+const glassTooltipStyle = {
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.75) 100%)',
+  backdropFilter: 'blur(24px) saturate(150%)',
+  WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+  border: '1px solid rgba(255, 255, 255, 0.6)',
+  borderRadius: '1rem',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)',
+  padding: '12px 16px',
+};
+
+// Golden Glow, Lilac Ash, Dark Cyan, Light Blue palette
 const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
+  "#E0CA3C", // Golden Glow
+  "#A799B7", // Lilac Ash
+  "#048A81", // Dark Cyan
+  "#93B7BE", // Light Blue
 ];
 
 export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
@@ -56,14 +68,25 @@ export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
+            <defs>
+              {COLORS.map((color, index) => (
+                <linearGradient key={`type-gradient-${index}`} id={`typeGradient-${index}`} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity={1} />
+                  <stop offset="100%" stopColor={color} stopOpacity={0.8} />
+                </linearGradient>
+              ))}
+            </defs>
             <Pie
               data={formattedData}
               cx="50%"
               cy="50%"
               labelLine={false}
               outerRadius={100}
+              innerRadius={50}
               fill="#8884d8"
               dataKey="value"
+              strokeWidth={2}
+              stroke="rgba(255,255,255,0.8)"
               label={({ name, percent }) =>
                 `${name} ${(percent * 100).toFixed(0)}%`
               }
@@ -71,12 +94,15 @@ export function SpendingByTypeChart({ data }: SpendingByTypeChartProps) {
               {formattedData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
+                  fill={`url(#typeGradient-${index % COLORS.length})`}
                 />
               ))}
             </Pie>
             <Tooltip
               formatter={(value: number) => [`€${value.toLocaleString()}`, ""]}
+              contentStyle={glassTooltipStyle}
+              labelStyle={{ color: "#2D3047", fontWeight: 600 }}
+              itemStyle={{ color: "#2D3047" }}
             />
           </PieChart>
         </ResponsiveContainer>

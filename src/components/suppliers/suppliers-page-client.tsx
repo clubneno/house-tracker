@@ -58,12 +58,8 @@ export function SuppliersPageClient({
           ...supplier,
           totalSpending,
           purchaseCount,
-          // Keep track if supplier has any purchases for this home
-          hasRelevantPurchases: activeHomeId ? purchaseCount > 0 : true,
         };
       })
-      // When filtering by home, only show suppliers with purchases for that home
-      .filter((s) => s.hasRelevantPurchases)
       // Apply type filter
       .filter((s) => typeFilter === 'all' || s.type === typeFilter)
       // Apply search filter

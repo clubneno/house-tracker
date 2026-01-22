@@ -70,7 +70,7 @@ function WarrantyList({
   showUrgent?: boolean;
   expired?: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   if (warranties.length === 0) {
     return (
@@ -102,7 +102,7 @@ function WarrantyList({
                   <span>{t("common.from")} {warranty.supplierName}</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {t("common.purchased")}: {formatDate(warranty.purchaseDate)}
+                  {t("common.purchased")}: {formatDate(warranty.purchaseDate, locale)}
                 </div>
               </div>
               <div className="text-right">
@@ -122,7 +122,7 @@ function WarrantyList({
                     : `${warranty.daysUntilExpiry} ${t("common.daysLeft")}`}
                 </Badge>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {t("common.expires")}: {formatDate(warranty.warrantyExpiresAt)}
+                  {t("common.expires")}: {formatDate(warranty.warrantyExpiresAt, locale)}
                 </p>
               </div>
             </Link>

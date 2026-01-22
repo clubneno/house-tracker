@@ -38,9 +38,9 @@ export function HomeSelector() {
         value={selectedHomeId || 'all'}
         onValueChange={(value) => setSelectedHomeId(value === 'all' ? null : value)}
       >
-        <SelectTrigger className="w-full bg-accent/50 border-0 hover:bg-accent">
+        <SelectTrigger className="w-full bg-primary/10 border-0 hover:bg-primary/20 text-primary">
           <div className="flex items-center gap-2">
-            <HomeIcon className="h-4 w-4 text-primary" />
+            <HomeIcon className="h-4 w-4" />
             <SelectValue placeholder={t('homes.selectHome')} />
           </div>
         </SelectTrigger>

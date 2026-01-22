@@ -7,10 +7,15 @@ import { RoomCard } from "./room-card";
 interface Room {
   id: string;
   name: string;
+  nameLt?: string | null;
   description: string | null;
+  descriptionLt?: string | null;
   budget: string | number | null;
   totalSpending: number;
   areaName: string | null;
+  areaNameLt?: string | null;
+  homeName?: string | null;
+  homeNameLt?: string | null;
 }
 
 interface RoomsAreaGroupProps {

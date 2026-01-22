@@ -86,7 +86,7 @@ export function PurchasesTable({ purchases }: PurchasesTableProps) {
                     href={`/purchases/${purchase.id}`}
                     className="font-medium hover:underline"
                   >
-                    {formatDate(purchase.date)}
+                    {formatDate(purchase.date, locale)}
                   </Link>
                 </TableCell>
                 <TableCell>
