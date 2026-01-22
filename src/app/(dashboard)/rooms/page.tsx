@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { db } from "@/lib/db";
-import { rooms, areas, purchases, homes } from "@/lib/db/schema";
+import { rooms, areas, purchases, purchaseLineItems, homes } from "@/lib/db/schema";
 import { sum, eq } from "drizzle-orm";
 import { RoomsPageClient } from "@/components/rooms/rooms-page-client";
 
@@ -20,15 +20,16 @@ async function getRooms() {
     .leftJoin(homes, eq(areas.homeId, homes.id))
     .orderBy(areas.name, rooms.name);
 
-  // Get spending per room
+  // Get spending per room from line items (where area/room assignments are stored)
   const spending = await db
     .select({
-      roomId: purchases.roomId,
-      total: sum(purchases.totalAmount),
+      roomId: purchaseLineItems.roomId,
+      total: sum(purchaseLineItems.totalPrice),
     })
-    .from(purchases)
+    .from(purchaseLineItems)
+    .innerJoin(purchases, eq(purchaseLineItems.purchaseId, purchases.id))
     .where(eq(purchases.isDeleted, false))
-    .groupBy(purchases.roomId);
+    .groupBy(purchaseLineItems.roomId);
 
   const spendingMap = new Map(
     spending.map((s) => [s.roomId, Number(s.total || 0)])
