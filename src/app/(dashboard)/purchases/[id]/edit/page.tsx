@@ -67,15 +67,18 @@ async function getFormData() {
     areas: areaList.map((a) => ({
       id: a.id,
       name: a.name,
+      nameLt: a.nameLt,
     })),
     rooms: roomList.map((r) => ({
       id: r.id,
       name: r.name,
+      nameLt: r.nameLt,
       areaId: r.areaId,
     })),
     homes: homeList.map((h) => ({
       id: h.id,
       name: h.name,
+      nameLt: h.nameLt,
     })),
   };
 }

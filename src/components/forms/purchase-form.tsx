@@ -62,9 +62,9 @@ type PurchaseFormData = z.infer<typeof purchaseSchema>;
 
 interface PurchaseFormProps {
   suppliers: { id: string; name: string; type: string }[];
-  areas: { id: string; name: string }[];
-  rooms: { id: string; name: string; areaId: string }[];
-  homes: { id: string; name: string }[];
+  areas: { id: string; name: string; nameLt?: string | null }[];
+  rooms: { id: string; name: string; nameLt?: string | null; areaId: string | null }[];
+  homes: { id: string; name: string; nameLt?: string | null }[];
   defaultSupplierId?: string;
   defaultRoomId?: string;
   purchase?: any;
@@ -81,8 +81,16 @@ export function PurchaseForm({
 }: PurchaseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { selectedHomeId } = useHome();
+
+  // Helper functions for locale-aware names
+  const getAreaName = (area: { name: string; nameLt?: string | null }) =>
+    locale === 'lt' && area.nameLt ? area.nameLt : area.name;
+  const getRoomName = (room: { name: string; nameLt?: string | null }) =>
+    locale === 'lt' && room.nameLt ? room.nameLt : room.name;
+  const getHomeName = (home: { name: string; nameLt?: string | null }) =>
+    locale === 'lt' && home.nameLt ? home.nameLt : home.name;
   const [isLoading, setIsLoading] = useState(false);
   const [formHomeId, setFormHomeId] = useState<string | null>(
     purchase?.homeId || selectedHomeId || null
@@ -385,7 +393,7 @@ export function PurchaseForm({
                   <SelectItem value="__none__">{t("common.none")}</SelectItem>
                   {homes.map((home) => (
                     <SelectItem key={home.id} value={home.id}>
-                      {home.name}
+                      {getHomeName(home)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -590,7 +598,7 @@ export function PurchaseForm({
                       <SelectItem value="__none__">{t("common.none")}</SelectItem>
                       {areas.map((area) => (
                         <SelectItem key={area.id} value={area.id}>
-                          {area.name}
+                          {getAreaName(area)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -610,7 +618,7 @@ export function PurchaseForm({
                       <SelectItem value="__none__">{t("common.none")}</SelectItem>
                       {getFilteredRooms(lineItemAreas[index] || "").map((room) => (
                         <SelectItem key={room.id} value={room.id}>
-                          {room.name}
+                          {getRoomName(room)}
                         </SelectItem>
                       ))}
                     </SelectContent>
